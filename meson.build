@@ -1,4 +1,4 @@
-logger_includes = include_directories('logger')
+logger_includes = include_directories('.')
 logger_sources = ['logger/logger.cpp']
 logger_deps = []
 
