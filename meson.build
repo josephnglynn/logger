@@ -2,7 +2,7 @@ logger_includes = include_directories('logger')
 logger_sources = ['logger/logger.cpp']
 logger_deps = []
 
-flow_logger_lib = shared_library(
+logger = shared_library(
     'logger',
      logger_sources,
      include_directories : logger_includes,
