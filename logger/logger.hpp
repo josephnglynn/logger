@@ -36,13 +36,13 @@ namespace logger
 	{
 		if constexpr(O == Release)
 		{
-			_output(color, (std::forward<T>(data), ...));
+			_output(color, std::forward<T>(data)...);
 		}
 		else
 		{
 
 #ifdef DEBUG
-			_output(color, (std::forward<T>(data), ...));
+			_output(color, std::forward<T>(data)...);
 #endif
 		}
 	}
@@ -50,25 +50,25 @@ namespace logger
 	template<OutputSettings O = Debug, typename ...T>
 	constexpr void info(T... data)
 	{
-		_checkForDebug<O>(Blue, (std::forward<T>(data), ...));
+		_checkForDebug<O>(Blue, std::forward<T>(data)...);
 	}
 
 	template<OutputSettings O = Debug, typename ...T>
 	constexpr void warn(T... data)
 	{
-		_checkForDebug<O>(Yellow, (std::forward<T>(data), ...));
+		_checkForDebug<O>(Yellow, std::forward<T>(data)...);
 	}
 
 	template<OutputSettings O = Debug, typename ...T>
 	constexpr void error(T... data)
 	{
-		_checkForDebug<O>(Red, (std::forward<T>(data), ...));
+		_checkForDebug<O>(Red, std::forward<T>(data)...);
 	}
 
 	template<OutputSettings O = Debug, typename ...T>
 	constexpr void success(T... data)
 	{
-		_checkForDebug<O>(Green, (std::forward<T>(data), ...));
+		_checkForDebug<O>(Green, std::forward<T>(data)...);
 	}
 
 
