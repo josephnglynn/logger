@@ -1,5 +1,5 @@
-logger_includes = include_directories('src/public')
-logger_sources = ['src/private/logger.cpp']
+logger_includes = include_directories('logger')
+logger_sources = ['logger/logger.cpp']
 logger_deps = []
 
 flow_logger_lib = shared_library(
