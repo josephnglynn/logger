@@ -2,8 +2,8 @@
 // Created by joseph on 18/11/2021.
 //
 
-#ifndef FLOW_WM_LOGGER_HPP
-#define FLOW_WM_LOGGER_HPP
+#ifndef LOGGER_HPP
+#define LOGGER_HPP
 
 #define Red "\u001b[31m"
 #define Green "\u001b[32m"
@@ -14,7 +14,7 @@
 
 #include <iostream>
 
-namespace flow::logger
+namespace logger
 {
 #ifdef DEBUG
 	template<typename ...T>
@@ -75,4 +75,4 @@ namespace flow::logger
 #endif
 }
 
-#endif //FLOW_WM_LOGGER_HPP
+#endif //LOGGER_HPP
