@@ -16,63 +16,64 @@
 
 namespace logger
 {
+
+	enum OutputSettings
+	{
+		Debug, //DEBUG ONLY
+		RAD //RELEASE AND DEBUG
+	};
+
+	template<typename ...T>
+	static inline constexpr void _output(const std::string& color, T... data)
+	{
+		std::cout << STARTING_STRING << color;
+		((std::cout << std::forward<T>(data) << " "), ...);
+		std::cout << RESET << std::endl;
+	}
+
+	template<OutputSettings O = Debug, typename ...T>
+	static inline constexpr void _checkForDebug(const std::string& color ,T... data)
+	{
+		if constexpr(O == RAD)
+		{
+			_output(color, (std::forward<T>(data), ...));
+		}
+		else
+		{
+
 #ifdef DEBUG
-	template<typename ...T>
-	void info(T... data)
-	{
-		std::cout << STARTING_STRING << Blue;
-		((std::cout << std::forward<T>(data) << " "), ...);
-		std::cout << RESET << std::endl;
-	}
-
-	template<typename ...T>
-	void warn(T... data)
-	{
-		std::cout << STARTING_STRING << Yellow;
-		((std::cout << std::forward<T>(data) << " "), ...);
-		std::cout << RESET << std::endl;
-	}
-
-	template<typename ...T>
-	void error(T... data)
-	{
-		std::cout << STARTING_STRING << Red;
-		((std::cout << std::forward<T>(data) << " "), ...);
-		std::cout << RESET << std::endl;
-	}
-
-	template<typename ...T>
-	void success(T... data)
-	{
-		std::cout << STARTING_STRING << Green;
-		((std::cout << std::forward<T>(data) << " "), ...);
-		std::cout << RESET << std::endl;
-	}
-#else
-	template<typename ...T>
-	void info(T... data)
-	{
-
-	}
-
-	template<typename ...T>
-	void warn(T... data)
-	{
-
-	}
-
-	template<typename ...T>
-	void error(T... data)
-	{
-
-	}
-
-	template<typename ...T>
-	void success(T... data)
-	{
-
-	}
+			_output(color, (std::forward<T>(data), ...));
 #endif
+		}
+	}
+
+	template<OutputSettings O = Debug, typename ...T>
+	constexpr void info(T... data)
+	{
+		_checkForDebug<O>(Blue, (std::forward<T>(data), ...));
+	}
+
+	template<OutputSettings O = Debug, typename ...T>
+	constexpr void warn(T... data)
+	{
+		_checkForDebug<O>(Yellow, (std::forward<T>(data), ...));
+	}
+
+	template<OutputSettings O = Debug, typename ...T>
+	constexpr void error(T... data)
+	{
+		_checkForDebug<O>(Red, (std::forward<T>(data), ...));
+	}
+
+	template<OutputSettings O = Debug, typename ...T>
+	constexpr void success(T... data)
+	{
+		_checkForDebug<O>(Green, (std::forward<T>(data), ...));
+	}
+
+
+
+
 }
 
 #endif //LOGGER_HPP
