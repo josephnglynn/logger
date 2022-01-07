@@ -20,7 +20,7 @@ namespace logger
 	enum OutputSettings
 	{
 		Debug, //DEBUG ONLY
-		RAD //RELEASE AND DEBUG
+		Release //RELEASE AND DEBUG
 	};
 
 	template<typename ...T>
@@ -34,7 +34,7 @@ namespace logger
 	template<OutputSettings O = Debug, typename ...T>
 	static inline constexpr void _checkForDebug(const std::string& color ,T... data)
 	{
-		if constexpr(O == RAD)
+		if constexpr(O == Release)
 		{
 			_output(color, (std::forward<T>(data), ...));
 		}

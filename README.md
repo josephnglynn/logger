@@ -5,7 +5,7 @@ This is a cpp logger for all my projects
 
 When called without any value for `OuputSettings` or with it as `Debug`, there will only be output in debug builds when the `DEBUG` macro is defined.
 
-NOTE: `RAD` stands for `RELEASE_AND_DEBUG`
+NOTE: `Release` means `RELEASE_AND_DEBUG`
 
 ```c++
 
@@ -32,6 +32,6 @@ logger::error("Whoa", "state: ", state); //Red color
 
 
 //Release And Debug Output
-logger::info<logger::RAD>("This is being called in release");
+logger::info<logger::Release>("This is being called in release");
 
 ```
