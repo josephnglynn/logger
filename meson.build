@@ -2,6 +2,8 @@ logger_includes = include_directories('.')
 logger_sources = ['logger/logger.cpp']
 logger_deps = []
 
+check_for_logger = true
+
 logger = shared_library(
     'logger',
      logger_sources,
