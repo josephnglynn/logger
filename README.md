@@ -3,20 +3,16 @@ This is a cpp logger for all my projects
 
 ## Usage
 
-When called without any value for `OuputSettings` or with it as `Debug`, there will only be output in debug builds when the `DEBUG` macro is defined.
+When called without any value for `OuputSettings` or with it as `DebugOnly`, there will only be output in debug builds when the `DEBUG` macro is defined.
 
 NOTE: `Release` means `RELEASE_AND_DEBUG`
 
 ```c++
 
-std::string whoa = "Whoa";
-int state = logger::Debug; //0
+int state = logger::DebugOnly; //0
 
-//Below only called in  debug build
-//NOTE:
-logger::info("test");
-//Is equivalent to 
-logger::info<logger::Debug>("test");
+
+//NOTE: without optional logger::debug or logger::release info and warn default to debug only and error and success default to release and debug
 
 //OUTPUT: Whoa state: 0
 logger::info("Whoa", "state: ", state); //Blue color

@@ -19,7 +19,7 @@ namespace logger
 
 	enum OutputSettings
 	{
-		Debug, //DEBUG ONLY
+		DebugOnly, //DEBUG ONLY
 		Release //RELEASE AND DEBUG
 	};
 
@@ -31,7 +31,7 @@ namespace logger
 		std::cout << RESET << std::endl;
 	}
 
-	template<OutputSettings O = Debug, typename ...T>
+	template<OutputSettings O, typename ...T>
 	static inline constexpr void _checkForDebug(const std::string& color ,T... data)
 	{
 		if constexpr(O == Release)
@@ -47,25 +47,25 @@ namespace logger
 		}
 	}
 
-	template<OutputSettings O = Debug, typename ...T>
+	template<OutputSettings O = DebugOnly, typename ...T>
 	constexpr void info(T... data)
 	{
 		_checkForDebug<O>(Blue, std::forward<T>(data)...);
 	}
 
-	template<OutputSettings O = Debug, typename ...T>
+	template<OutputSettings O = DebugOnly, typename ...T>
 	constexpr void warn(T... data)
 	{
 		_checkForDebug<O>(Yellow, std::forward<T>(data)...);
 	}
 
-	template<OutputSettings O = Debug, typename ...T>
+	template<OutputSettings O = Release, typename ...T>
 	constexpr void error(T... data)
 	{
 		_checkForDebug<O>(Red, std::forward<T>(data)...);
 	}
 
-	template<OutputSettings O = Debug, typename ...T>
+	template<OutputSettings O = Release, typename ...T>
 	constexpr void success(T... data)
 	{
 		_checkForDebug<O>(Green, std::forward<T>(data)...);
