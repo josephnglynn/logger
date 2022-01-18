@@ -12,6 +12,10 @@
 #define RESET "\u001b[0m"
 #define STARTING_STRING "\u001b[37m==> "
 
+#ifndef LOGGER_STREAM
+#define LOGGER_STREAM std::cout
+#endif
+
 #include <iostream>
 
 namespace logger
@@ -26,9 +30,9 @@ namespace logger
 	template<typename ...T>
 	static inline constexpr void _output(const std::string& color, T... data)
 	{
-		std::cout << STARTING_STRING << color;
-		((std::cout << std::forward<T>(data) << " "), ...);
-		std::cout << RESET << std::endl;
+		LOGGER_STREAM << STARTING_STRING << color;
+		((LOGGER_STREAM << std::forward<T>(data) << " "), ...);
+		LOGGER_STREAM << RESET << std::endl;
 	}
 
 	template<OutputSettings O, typename ...T>
