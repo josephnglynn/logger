@@ -9,6 +9,7 @@
 #define Green "\u001b[32m"
 #define Yellow "\u001b[33m"
 #define Blue "\u001b[34m"
+#define Purple "\u001b[35m"
 #define RESET "\u001b[0m"
 #define STARTING_STRING "\u001b[37m==> "
 
@@ -75,6 +76,11 @@ namespace logger
 		_checkForDebug<O>(Green, std::forward<T>(data)...);
 	}
 
+	template<OutputSettings O = Release, typename ...T>
+	constexpr void notify(T... data)
+	{
+		_checkForDebug<O>(Purple, std::forward<T>(data)...);
+	}
 
 
 
