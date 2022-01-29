@@ -18,12 +18,13 @@ if get_option('buildtype').startswith('debug')
 endif
 
 
+add_project_arguments(arg, language: 'cpp')
+
 logger = shared_library(
     'logger',
     logger_sources,
     include_directories : logger_includes,
     dependencies: logger_deps,
-    cpp_args: arg
 )
 
 
