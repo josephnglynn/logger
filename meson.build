@@ -1,3 +1,13 @@
+project(
+        'logger',
+        'cpp',
+        version: '0.0.1', 
+        default_options : [
+            'warning_level=3',
+            'cpp_std=c++17'
+        ]
+)
+
 logger_includes = include_directories('.')
 logger_sources = ['logger/logger.cpp']
 logger_deps = []
