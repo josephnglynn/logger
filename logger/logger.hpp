@@ -12,6 +12,7 @@
 #define Purple "\u001b[35m"
 #define RESET "\u001b[0m"
 #define STARTING_STRING "\u001b[37m==> "
+#define LOGGER_INTERVAL = "    "
 
 #ifndef LOGGER_STREAM
 #define LOGGER_STREAM std::cout
