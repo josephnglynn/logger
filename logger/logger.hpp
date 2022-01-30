@@ -5,11 +5,11 @@
 #ifndef LOGGER_HPP
 #define LOGGER_HPP
 
-#define Red "\u001b[31m"
-#define Green "\u001b[32m"
-#define Yellow "\u001b[33m"
-#define Blue "\u001b[34m"
-#define Purple "\u001b[35m"
+#define LOGGER_RED "\u001b[31m"
+#define LOGGER_GREEN "\u001b[32m"
+#define LOGGER_YELLOW "\u001b[33m"
+#define LOGGER_BLUE "\u001b[34m"
+#define LOGGER_PURPLE "\u001b[35m"
 #define RESET "\u001b[0m"
 #define STARTING_STRING "\u001b[37m==> "
 #define LOGGER_INTERVAL = "    "
@@ -62,31 +62,31 @@ namespace logger
 	template<OutputSettings O = DebugOnly, typename ...T>
 	constexpr void info(T... data)
 	{
-		_checkForDebug<O>(Blue, std::forward<T>(data)...);
+		_checkForDebug<O>(LOGGER_LOGGER_BLUE, std::forward<T>(data)...);
 	}
 
 	template<OutputSettings O = DebugOnly, typename ...T>
 	constexpr void warn(T... data)
 	{
-		_checkForDebug<O>(Yellow, std::forward<T>(data)...);
+		_checkForDebug<O>(LOGGER_YELLOW, std::forward<T>(data)...);
 	}
 
 	template<OutputSettings O = Release, typename ...T>
 	constexpr void error(T... data)
 	{
-		_checkForDebug<O>(Red, std::forward<T>(data)...);
+		_checkForDebug<O>(LOGGER_RED, std::forward<T>(data)...);
 	}
 
 	template<OutputSettings O = Release, typename ...T>
 	constexpr void success(T... data)
 	{
-		_checkForDebug<O>(Green, std::forward<T>(data)...);
+		_checkForDebug<O>(LOGGER_LOGGER_GREEN, std::forward<T>(data)...);
 	}
 
 	template<OutputSettings O = Release, typename ...T>
 	constexpr void notify(T... data)
 	{
-		_checkForDebug<O>(Purple, std::forward<T>(data)...);
+		_checkForDebug<O>(LOGGER_LOGGER_PURPLE, std::forward<T>(data)...);
 	}
 
 
