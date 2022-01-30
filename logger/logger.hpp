@@ -62,7 +62,7 @@ namespace logger
 	template<OutputSettings O = DebugOnly, typename ...T>
 	constexpr void info(T... data)
 	{
-		_checkForDebug<O>(LOGGER_LOGGER_BLUE, std::forward<T>(data)...);
+		_checkForDebug<O>(LOGGER_BLUE, std::forward<T>(data)...);
 	}
 
 	template<OutputSettings O = DebugOnly, typename ...T>
@@ -80,13 +80,13 @@ namespace logger
 	template<OutputSettings O = Release, typename ...T>
 	constexpr void success(T... data)
 	{
-		_checkForDebug<O>(LOGGER_LOGGER_GREEN, std::forward<T>(data)...);
+		_checkForDebug<O>(LOGGER_GREEN, std::forward<T>(data)...);
 	}
 
 	template<OutputSettings O = Release, typename ...T>
 	constexpr void notify(T... data)
 	{
-		_checkForDebug<O>(LOGGER_LOGGER_PURPLE, std::forward<T>(data)...);
+		_checkForDebug<O>(LOGGER_PURPLE, std::forward<T>(data)...);
 	}
 
 
