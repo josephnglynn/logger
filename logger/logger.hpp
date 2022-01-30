@@ -17,6 +17,12 @@
 #define LOGGER_STREAM std::cout
 #endif
 
+#ifndef LOGGER_ALWAYS_OUTPUT
+	#ifdef DEBUG
+	#define LOGGER_ALWAYS_OUTPUT
+	#endif
+#endif
+
 #include <iostream>
 
 namespace logger
@@ -46,7 +52,7 @@ namespace logger
 		else
 		{
 
-#ifdef DEBUG
+#ifdef LOGGER_ALWAYS_OUTPUT
 			_output(color, std::forward<T>(data)...);
 #endif
 		}
