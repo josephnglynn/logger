@@ -31,3 +31,4 @@ logger::error("Whoa", "state: ", state); //Red color
 logger::info<logger::Release>("This is being called in release");
 
 ```
+
