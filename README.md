@@ -3,6 +3,8 @@ This is a cpp logger for all my projects
 
 ## Usage
 
+Before starting using any functions, call `logger::init()`, which takes an optional parameter of type `logger::Options`
+
 When called without any value for `OuputSettings` or with it as `DebugOnly`, there will only be output in debug builds when the `DEBUG` macro is defined.
 
 NOTE: `Release` means `RELEASE_AND_DEBUG`
@@ -14,16 +16,16 @@ int state = logger::DebugOnly; //0
 
 //NOTE: without optional logger::debug or logger::release info and warn default to debug only and error and success default to release and debug
 
-//OUTPUT: Whoa state: 0
+// OUTPUT: Whoa state: 0
 logger::info("Whoa", "state: ", state); //Blue color
 
-//OUTPUT: Whoa state: 0
+// OUTPUT: Whoa state: 0
 logger::success("Whoa", "state: ", state); //Green color
 
-//OUTPUT: Whoa state: 0
+// OUTPUT: Whoa state: 0
 logger::warn("Whoa", "state: ", state); //Yellow color
 
-//OUTPUT: Whoa state: 0
+// OUTPUT: Whoa state: 0
 logger::error("Whoa", "state: ", state); //Red color
 
 
@@ -31,4 +33,8 @@ logger::error("Whoa", "state: ", state); //Red color
 logger::info<logger::Release>("This is being called in release");
 
 ```
+
+Note
+
+`logger::success()`, `logger::error()` and `logger::notify()` are the only functions which output in release build by default.
 
