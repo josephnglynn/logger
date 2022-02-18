@@ -20,7 +20,6 @@ namespace logger
 
 	struct Options
 	{
-		bool is_debug_build;
 		std::vector<std::ostream*> output_streams;
 	};
 
@@ -35,17 +34,17 @@ namespace logger
 		const auto blue = "\u001b[34m";
 		const auto purple = "\u001b[35m";
 
+#ifdef DEBUG
+		const bool is_debug_build = true;
+#else
+		const bool is_debug_build = false;
+#endif
+
 		Options* options;
 
 		inline Options* get_default_options()
 		{
 			Options* def_options = new Options();
-
-#ifdef DEBUG
-			def_options->is_debug_build = true;
-#else
-			def_options->is_debug_build = false;
-#endif
 
 			def_options->output_streams = { &std::cout };
 
@@ -69,11 +68,7 @@ namespace logger
 		template<OutputSettings O, typename ...T>
 		static inline constexpr void checkForDebug(const char* color, T... data)
 		{
-			if constexpr(O == Release || options->is_debug_build)
-			{
-				_output(color, std::forward<T>(data)...);
-			}
-			else
+			if constexpr(O == Release || internal::is_debug_build)
 			{
 				_output(color, std::forward<T>(data)...);
 			}
