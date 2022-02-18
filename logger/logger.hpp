@@ -5,91 +5,115 @@
 #ifndef LOGGER_HPP
 #define LOGGER_HPP
 
-#define LOGGER_RED "\u001b[31m"
-#define LOGGER_GREEN "\u001b[32m"
-#define LOGGER_YELLOW "\u001b[33m"
-#define LOGGER_BLUE "\u001b[34m"
-#define LOGGER_PURPLE "\u001b[35m"
-#define RESET "\u001b[0m"
-#define STARTING_STRING "\u001b[37m==> "
-#define LOGGER_INTERVAL "    "
-
-#ifndef LOGGER_STREAM
-#define LOGGER_STREAM std::cout
-#endif
-
-#ifndef LOGGER_ALWAYS_OUTPUT
-	#ifdef DEBUG
-	#define LOGGER_ALWAYS_OUTPUT
-	#endif
-#endif
-
 #include <iostream>
+#include <ostream>
+#include <vector>
 
 namespace logger
 {
 
 	enum OutputSettings
 	{
-		DebugOnly, //DEBUG ONLY
-		Release //RELEASE AND DEBUG
+		DebugOnly, // DEBUG ONLY
+		Release // RELEASE AND DEBUG
 	};
 
-	template<typename ...T>
-	static inline constexpr void _output(const std::string& color, T... data)
+	struct Options
 	{
-		LOGGER_STREAM << STARTING_STRING << color;
-		((LOGGER_STREAM << std::forward<T>(data) << " "), ...);
-		LOGGER_STREAM << RESET << std::endl;
+		bool is_debug_build;
+		std::vector<std::ostream*> output_streams;
+	};
+
+	namespace internal
+	{
+		const auto starting_string = "\u001b[37m==> ";
+		const auto interval = "    "; // Note, kept for later
+		const auto reset = "\u001b[0m";
+		const auto red = "\u001b[31m";
+		const auto green = "\u001b[32m";
+		const auto yellow = "\u001b[33m";
+		const auto blue = "\u001b[34m";
+		const auto purple = "\u001b[35m";
+
+		Options* options;
+
+		inline Options* get_default_options()
+		{
+			Options* def_options = new Options();
+
+#ifdef DEBUG
+			def_options->is_debug_build = true;
+#else
+			def_options->is_debug_build = false;
+#endif
+
+			def_options->output_streams = { &std::cout };
+
+			return def_options;
+		}
+
+
+		template<typename ...T>
+		static inline void output(const char* color, T... data)
+		{
+			for (const auto stream: options->output_streams)
+			{
+				*stream << starting_string << color;
+				((*stream << data << " "), ...)
+				*stream << reset << std::endl;
+			}
+		}
+
+
+
+		template<OutputSettings O, typename ...T>
+		static inline constexpr void checkForDebug(const char* color, T... data)
+		{
+			if constexpr(O == Release || options->is_debug_build)
+			{
+				_output(color, std::forward<T>(data)...);
+			}
+			else
+			{
+				_output(color, std::forward<T>(data)...);
+			}
+		}
 	}
 
-	template<OutputSettings O, typename ...T>
-	static inline constexpr void _checkForDebug(const std::string& color ,T... data)
+	constexpr void init(Options* opt = internal::get_default_options())
 	{
-		if constexpr(O == Release)
-		{
-			_output(color, std::forward<T>(data)...);
-		}
-		else
-		{
-
-#ifdef LOGGER_ALWAYS_OUTPUT
-			_output(color, std::forward<T>(data)...);
-#endif
-		}
+		internal::options = opt;
 	}
 
 	template<OutputSettings O = DebugOnly, typename ...T>
 	constexpr void info(T... data)
 	{
-		_checkForDebug<O>(LOGGER_BLUE, std::forward<T>(data)...);
+		internal::checkForDebug<O>(internal::blue, std::forward<T>(data)...);
 	}
 
 	template<OutputSettings O = DebugOnly, typename ...T>
 	constexpr void warn(T... data)
 	{
-		_checkForDebug<O>(LOGGER_YELLOW, std::forward<T>(data)...);
+		internal::checkForDebug<O>(internal::yellow, std::forward<T>(data)...);
 	}
 
 	template<OutputSettings O = Release, typename ...T>
 	constexpr void error(T... data)
 	{
-		_checkForDebug<O>(LOGGER_RED, std::forward<T>(data)...);
+		internal::checkForDebug<O>(internal::red, std::forward<T>(data)...);
 	}
 
 	template<OutputSettings O = Release, typename ...T>
 	constexpr void success(T... data)
 	{
-		_checkForDebug<O>(LOGGER_GREEN, std::forward<T>(data)...);
+		internal::checkForDebug<O>(internal::green, std::forward<T>(data)...);
 	}
 
 	template<OutputSettings O = Release, typename ...T>
 	constexpr void notify(T... data)
 	{
-		_checkForDebug<O>(LOGGER_PURPLE, std::forward<T>(data)...);
+		internal::checkForDebug<O>(internal::purple, std::forward<T>(data)...);
 	}
-
-
 
 }
 
