@@ -3,38 +3,44 @@ This is a cpp logger for all my projects
 
 ## Usage
 
-Before starting using any functions, call `logger::init()`, which takes an optional parameter of type `logger::Options`
+Before starting using any functions, call `logger::init()`, which takes an optional parameter of type `std::unique_ptr<logger::Options>`
+ 
+### Note
+Although you can construct  `std::unique_ptr<logger::Options>`  with the  `std::make_unique<logger::Options>()`, it becomes a long line due to the optional call to the `logger::Options` constructor. Therefore, I recommend using the provided `logger::make_options(streams, colors)` function
 
-When called without any value for `OuputSettings` or with it as `DebugOnly`, there will only be output in debug builds when the `DEBUG` macro is defined.
+Now just call any of the following functions below
 
-NOTE: `Release` means `RELEASE_AND_DEBUG`
+## Functions
+
 
 ```c++
+logger::init(std::unique_ptr<logger::Options> = logger::make_options()) // Init Library
 
-int state = logger::DebugOnly; //0
+logger::info(Args...);  // Default Color = Blue, Default Run = Debug Only
+logger::warn(Args...);  // Default Color = Yellow, Default Run = Debug Only
 
-
-//NOTE: without optional logger::debug or logger::release info and warn default to debug only and error and success default to release and debug
-
-// OUTPUT: Whoa state: 0
-logger::info("Whoa", "state: ", state); //Blue color
-
-// OUTPUT: Whoa state: 0
-logger::success("Whoa", "state: ", state); //Green color
-
-// OUTPUT: Whoa state: 0
-logger::warn("Whoa", "state: ", state); //Yellow color
-
-// OUTPUT: Whoa state: 0
-logger::error("Whoa", "state: ", state); //Red color
-
-
-//Release And Debug Output
-logger::info<logger::Release>("This is being called in release");
-
+logger::success(Args...);  // Default Color = Green, Default Run = Release And Debug
+logger::notify(Args...);  // Default Color = Purple, Default Run = Release And Debug
+logger::error(Args...);  // Default Color = Red, Default Run = Release And Debug
 ```
 
-Note
 
-`logger::success()`, `logger::error()` and `logger::notify()` are the only functions which output in release build by default.
+## Example
 
+### Note:
+This is a simple example, for more look at `tests/test.cpp`
+```c++
+#include <iostream> // Note logger.hpp does include <iostream>
+#include <fstream>
+
+
+
+std::ifstream my_log_file("log.txt");
+logger::init(logger::make_options({ &std::cout, &file }));
+
+logger::info("This will only work in debug builds, when DEBUG macro is defined");
+logger::info<Release>("This will work in any build");
+
+logger::success("This function will work in any build");
+logger::success<DebugOnly>("This function will only work in Debug")
+```
