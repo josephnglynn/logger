@@ -1,0 +1,1 @@
+test_exec = executable('test_exec', 'test.cpp', dependencies: logger_dep)

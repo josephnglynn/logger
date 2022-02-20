@@ -29,3 +29,7 @@ logger = shared_library(
 
 
 logger_dep = declare_dependency(include_directories: logger_includes, link_with: logger)
+
+
+
+subdir('tests')
