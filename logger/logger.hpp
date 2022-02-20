@@ -34,8 +34,9 @@ namespace logger
 
 	enum OutputSettings
 	{
-		DebugOnly, // DEBUG ONLY
-		Release // RELEASE AND DEBUG
+		Debug, // DEBUG ONLY
+		Release, // RELEASE ONLY,
+		All,
 	};
 
 	struct Colors
@@ -96,7 +97,7 @@ namespace logger
 		template<OutputSettings O, typename ...T>
 		inline constexpr void output_wrapper(const char* color, T... data)
 		{
-			if constexpr(O == Release || internal::is_debug_build)
+			if constexpr(O == All || (internal::is_debug_build && O == Debug) || (!internal::is_debug_build && O == Release))
 			{
 				output(color, std::forward<T>(data)...);
 			}
@@ -116,31 +117,31 @@ namespace logger
 
 
 
-	template<OutputSettings O = DebugOnly, typename ...T>
+	template<OutputSettings O = Debug, typename ...T>
 	inline constexpr void info(T... data)
 	{
 		internal::output_wrapper<O>(internal::options->colors.info_color, std::forward<T>(data)...);
 	}
 
-	template<OutputSettings O = DebugOnly, typename ...T>
+	template<OutputSettings O = Debug, typename ...T>
 	inline constexpr void warn(T... data)
 	{
 		internal::output_wrapper<O>(internal::options->colors.warn_color, std::forward<T>(data)...);
 	}
 
-	template<OutputSettings O = Release, typename ...T>
+	template<OutputSettings O = All, typename ...T>
 	inline constexpr void success(T... data)
 	{
 		internal::output_wrapper<O>(internal::options->colors.success_color, std::forward<T>(data)...);
 	}
 
-	template<OutputSettings O = Release, typename ...T>
+	template<OutputSettings O = All, typename ...T>
 	inline constexpr void notify(T... data)
 	{
 		internal::output_wrapper<O>(internal::options->colors.notify_color, std::forward<T>(data)...);
 	}
 
-	template<OutputSettings O = Release, typename ...T>
+	template<OutputSettings O = All, typename ...T>
 	inline constexpr void error(T... data)
 	{
 		internal::output_wrapper<O>(internal::options->colors.error_color, std::forward<T>(data)...);
