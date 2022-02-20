@@ -75,6 +75,18 @@ namespace logger
 	namespace internal
 	{
 
+		struct EndLine {
+			friend std::ostream& operator << (std::ostream& os, const EndLine& end_line);
+		};
+
+		struct Ends {
+			friend std::ostream& operator << (std::ostream& os, const Ends& ends);
+		};
+
+		struct Flush {
+			friend std::ostream& operator << (std::ostream& os, const Flush& flush);
+		};
+
 #ifdef DEBUG
 		const bool is_debug_build = true;
 #else
@@ -103,6 +115,10 @@ namespace logger
 			}
 		}
 	}
+
+	constexpr const internal::EndLine endl = internal::EndLine();
+	constexpr const internal::Ends ends = internal::Ends();
+	constexpr const internal::Flush flush = internal::Flush();
 
 	inline std::unique_ptr<Options> make_options(std::vector<std::ostream*> streams = { &std::cout },
 		Colors colors = Colors())

@@ -28,4 +28,21 @@ namespace logger
 	{
 
 	}
+	std::ostream& internal::operator<<(std::ostream& os, const internal::EndLine&)
+	{
+		os << std::endl;
+		return os;
+	}
+
+	std::ostream& internal::operator<<(std::ostream& os, const internal::Ends& end_line)
+	{
+		os << std::ends;
+		return os;
+	}
+
+	std::ostream& internal::operator<<(std::ostream& os, const internal::Flush& flush)
+	{
+		os << std::flush;
+		return os;
+	}
 }
