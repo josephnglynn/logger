@@ -20,6 +20,9 @@ namespace logger
 
 	struct Options
 	{
+		Options() = default;
+		explicit Options(std::vector<std::ostream*> streams);
+
 		std::vector<std::ostream*> output_streams;
 	};
 
@@ -44,7 +47,7 @@ namespace logger
 
 		inline Options* get_default_options()
 		{
-			Options* def_options = new Options();
+			auto* def_options = new Options();
 
 			def_options->output_streams = { &std::cout };
 
