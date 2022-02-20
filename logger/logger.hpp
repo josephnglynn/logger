@@ -76,15 +76,15 @@ namespace logger
 	{
 
 		struct EndLine {
-			friend std::ostream& operator << (std::ostream& os, const EndLine& end_line);
+			friend std::ostream& operator << (std::ostream& os, const EndLine&);
 		};
 
 		struct Ends {
-			friend std::ostream& operator << (std::ostream& os, const Ends& ends);
+			friend std::ostream& operator << (std::ostream& os, const Ends&);
 		};
 
 		struct Flush {
-			friend std::ostream& operator << (std::ostream& os, const Flush& flush);
+			friend std::ostream& operator << (std::ostream& os, const Flush&);
 		};
 
 #ifdef DEBUG

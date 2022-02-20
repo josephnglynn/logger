@@ -9,12 +9,11 @@
 namespace logger
 {
 
-
-	Options::Options(std::vector<std::ostream*> streams, Colors colors) : colors(colors), output_streams(std::move(streams))
+	Options::Options(std::vector<std::ostream*> streams, Colors colors)
+		: colors(colors), output_streams(std::move(streams))
 	{
 
 	}
-
 
 	Colors::Colors(const char* info,
 		const char* warn,
@@ -28,21 +27,25 @@ namespace logger
 	{
 
 	}
-	std::ostream& internal::operator<<(std::ostream& os, const internal::EndLine&)
-	{
-		os << std::endl;
-		return os;
-	}
 
-	std::ostream& internal::operator<<(std::ostream& os, const internal::Ends& end_line)
+	namespace internal
 	{
-		os << std::ends;
-		return os;
-	}
+		std::ostream& operator<<(std::ostream& os, const EndLine&)
+		{
+			os << std::endl;
+			return os;
+		}
 
-	std::ostream& internal::operator<<(std::ostream& os, const internal::Flush& flush)
-	{
-		os << std::flush;
-		return os;
+		std::ostream& operator<<(std::ostream& os, const Ends&)
+		{
+			os << std::ends;
+			return os;
+		}
+
+		std::ostream& operator<<(std::ostream& os, const Flush&)
+		{
+			os << std::flush;
+			return os;
+		}
 	}
 }
