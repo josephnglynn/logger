@@ -58,7 +58,7 @@ namespace logger
 			for (const auto stream: options->output_streams)
 			{
 				*stream << starting_string << color;
-				((*stream << data << " "), ...)
+				((*stream << data << " "), ...);
 				*stream << reset << std::endl;
 			}
 		}
