@@ -66,11 +66,11 @@ namespace logger
 
 
 		template<OutputSettings O, typename ...T>
-		static inline constexpr void checkForDebug(const char* color, T... data)
+		static inline constexpr void output_wrapper(const char* color, T... data)
 		{
 			if constexpr(O == Release || internal::is_debug_build)
 			{
-				_output(color, std::forward<T>(data)...);
+				output(color, std::forward<T>(data)...);
 			}
 		}
 	}
@@ -83,31 +83,31 @@ namespace logger
 	template<OutputSettings O = DebugOnly, typename ...T>
 	constexpr void info(T... data)
 	{
-		internal::checkForDebug<O>(internal::blue, std::forward<T>(data)...);
+		internal::output_wrapper<O>(internal::blue, std::forward<T>(data)...);
 	}
 
 	template<OutputSettings O = DebugOnly, typename ...T>
 	constexpr void warn(T... data)
 	{
-		internal::checkForDebug<O>(internal::yellow, std::forward<T>(data)...);
+		internal::output_wrapper<O>(internal::yellow, std::forward<T>(data)...);
 	}
 
 	template<OutputSettings O = Release, typename ...T>
 	constexpr void error(T... data)
 	{
-		internal::checkForDebug<O>(internal::red, std::forward<T>(data)...);
+		internal::output_wrapper<O>(internal::red, std::forward<T>(data)...);
 	}
 
 	template<OutputSettings O = Release, typename ...T>
 	constexpr void success(T... data)
 	{
-		internal::checkForDebug<O>(internal::green, std::forward<T>(data)...);
+		internal::output_wrapper<O>(internal::green, std::forward<T>(data)...);
 	}
 
 	template<OutputSettings O = Release, typename ...T>
 	constexpr void notify(T... data)
 	{
-		internal::checkForDebug<O>(internal::purple, std::forward<T>(data)...);
+		internal::output_wrapper<O>(internal::purple, std::forward<T>(data)...);
 	}
 
 }
