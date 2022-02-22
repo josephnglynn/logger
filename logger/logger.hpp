@@ -99,7 +99,7 @@ namespace logger
 		const bool is_debug_build = false;
 #endif
 
-		Options options;
+		std::unique_ptr<Options> options;
 
 		template<typename ...T>
 		LOGGER_INLINE void output(const OptionEntry& entry, const char* color, T... data)
@@ -113,15 +113,25 @@ namespace logger
 		template<BuildSettings O, OutputFunction type, typename ...T>
 		inline constexpr void output_wrapper(T... data)
 		{
-			if constexpr(O == All || (internal::is_debug_build && O == Debug) || (!internal::is_debug_build && O == Release))
+			if constexpr(O == All || (internal::is_debug_build && O == Debug)
+				|| (!internal::is_debug_build && O == Release))
 			{
-				for (const auto& entry: options)
+				for (const auto& entry: *options)
 				{
 					if constexpr(type == OutputFunction::Info) output(entry, entry.output_settings.info_color, data...);
 					if constexpr(type == OutputFunction::Warn) output(entry, entry.output_settings.warn_color, data...);
-					if constexpr(type == OutputFunction::Success) output(entry,entry.output_settings.success_color,data...);
-					if constexpr(type == OutputFunction::Notify) output(entry,entry.output_settings.notify_color,data...);
-					if constexpr(type == OutputFunction::Error) output(entry,entry.output_settings.error_color,data...);
+					if constexpr(type == OutputFunction::Success)
+						output(entry,
+							entry.output_settings.success_color,
+							data...);
+					if constexpr(type == OutputFunction::Notify)
+						output(entry,
+							entry.output_settings.notify_color,
+							data...);
+					if constexpr(type == OutputFunction::Error)
+						output(entry,
+							entry.output_settings.error_color,
+							data...);
 				}
 			}
 		}
@@ -147,12 +157,15 @@ namespace logger
 		return os;
 	}
 
+	inline std::unique_ptr<Options> make_options(std::vector<OptionEntry> entries = { OptionEntry() })
+	{
+		return std::make_unique<Options>(Options(std::move(entries)));
+	}
+
 
 	// Init Functions
 
-
-
-	inline void init(Options opt = { OptionEntry() })
+	inline void init(std::unique_ptr<Options> opt = make_options())
 	{
 		internal::options = std::move(opt);
 	}

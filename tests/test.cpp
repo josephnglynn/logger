@@ -33,7 +33,7 @@ inline void file_test()
 
 	};
 
-	logger::init({{ std::cout, logger::OutputSettings() }, { file, logger::OutputSettings() }});
+	logger::init(logger::make_options({{ std::cout, logger::OutputSettings() }, { file, logger::OutputSettings() }}));
 	logger::info("OUTPUT WITH FILE OUTPUT TOO");
 	logger::warn(
 		"But be careful, as currently it also writes output_settings as well, however this should not be a problem if you intend to cat the file in your terminal");
