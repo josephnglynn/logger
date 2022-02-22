@@ -10,6 +10,8 @@
 #include <utility>
 #include <vector>
 #include <memory>
+#include <algorithm>
+#include <functional>
 
 #define LOGGER_INLINE inline
 #ifdef LOGGER_DISABLE_INLINE
@@ -18,19 +20,108 @@
 
 namespace logger
 {
+	typedef const char* Color;
 
 	namespace values
 	{
-		constexpr const char* blue = "\u001b[34m";
-		constexpr const char* yellow = "\u001b[33m";
-		constexpr const char* green = "\u001b[32m";
-		constexpr const char* purple = "\u001b[35m";
-		constexpr const char* red = "\u001b[31m";
-		constexpr const char* grey = "\u001b[37m";
-		constexpr const char* starting_string = "==> ";
-		constexpr const char* reset_code = "\u001b[0m";
+		constexpr Color blue = "\u001b[34m";
+		constexpr Color yellow = "\u001b[33m";
+		constexpr Color green = "\u001b[32m";
+		constexpr Color purple = "\u001b[35m";
+		constexpr Color red = "\u001b[31m";
+		constexpr Color grey = "\u001b[37m";
+		constexpr Color starting_string = "==> ";
+		constexpr Color reset_code = "\u001b[0m";
 
-		constexpr const char* default_interval = "    "; // Note, kept for later
+		constexpr Color default_interval = "    "; // Note, kept for later
+	}
+
+	struct OutputSettings
+	{
+		OutputSettings(
+			Color info = values::blue,
+			Color warn = values::yellow,
+
+			Color success = values::green,
+			Color notify = values::purple,
+			Color error = values::red,
+
+			Color starting_string_color = values::grey,
+
+			Color starting_string = values::starting_string,
+			Color reset_code = values::reset_code
+		);
+
+		Color info_color;
+		Color warn_color;
+
+		Color success_color;
+		Color notify_color;
+		Color error_color;
+
+		Color starting_string_color;
+
+		const char* starting_string;
+		const char* reset_code;
+	};
+
+	struct OutputEntry
+	{
+		OutputEntry(std::ostream& ostream = std::cout, bool colored_output = true);
+
+		bool colored_output;
+		std::ostream& ostream;
+	};
+
+	namespace internal
+	{
+		class Logger
+		{
+		public:
+
+			Logger() = default;
+			Logger(std::vector<OutputEntry> output_entries);
+
+			inline void add_stream(OutputEntry output_entry)
+			{
+				output_streams.emplace_back(output_entry);
+			}
+
+			inline void remove_stream(OutputEntry output_entry)
+			{
+				const auto result = std::find(output_streams.begin(), output_streams.end(), output_entry);
+				if (result != std::end(output_streams))
+				{
+					output_streams.erase(result);
+				}
+			}
+
+			template<typename T>
+			friend const Logger& operator<<(const Logger& logger, const T& data)
+			{
+
+				for (const auto& output_entry: logger.output_streams)
+				{
+					if constexpr(std::is_same<T, Color>::value)
+					{
+						if (output_entry.colored_output) continue;
+					}
+					output_entry.ostream << data << " ";
+				}
+				return logger;
+			}
+
+			[[nodiscard]] inline const OutputSettings& get_output_setting() const
+			{
+				return output_settings;
+			}
+
+		private:
+			OutputSettings output_settings;
+			std::vector<OutputEntry> output_streams;
+		};
+
+		std::unique_ptr<Logger> logger_instance;
 	}
 
 	enum BuildSettings
@@ -40,102 +131,6 @@ namespace logger
 		All,
 	};
 
-	struct OutputSettings
-	{
-		explicit OutputSettings(
-			const char* info = values::blue,
-			const char* warn = values::yellow,
-
-			const char* success = values::green,
-			const char* notify = values::purple,
-			const char* error = values::red,
-
-			const char* starting_string_color = values::grey,
-
-			const char* starting_string = values::starting_string,
-			const char* reset_code = values::reset_code
-		);
-
-		const char* info_color;
-		const char* warn_color;
-
-		const char* success_color;
-		const char* notify_color;
-		const char* error_color;
-
-		const char* starting_string_color;
-
-		const char* starting_string;
-		const char* reset_code;
-	};
-
-	struct OptionEntry
-	{
-		// Don't mark as explicit so that { std::cout, logger::OutputSettings() } still works.
-		OptionEntry(std::ostream& ostream = std::cout, OutputSettings colors = OutputSettings());
-
-		std::ostream& ostream;
-		OutputSettings output_settings;
-	};
-
-	typedef std::vector<OptionEntry> Options;
-
-	namespace internal
-	{
-
-		enum OutputFunction
-		{
-			Info,
-			Warn,
-
-			Success,
-			Notify,
-			Error
-		};
-
-#ifdef DEBUG
-		const bool is_debug_build = true;
-#else
-		const bool is_debug_build = false;
-#endif
-
-		std::unique_ptr<Options> options;
-
-		template<typename ...T>
-		LOGGER_INLINE void output(const OptionEntry& entry, const char* color, T... data)
-		{
-			entry.ostream << entry.output_settings.starting_string_color << entry.output_settings.starting_string
-						  << color;
-			((entry.ostream << data << " "), ...);
-			entry.ostream << entry.output_settings.reset_code << std::endl;
-		}
-
-		template<BuildSettings O, OutputFunction type, typename ...T>
-		inline constexpr void output_wrapper(T... data)
-		{
-			if constexpr(O == All || (internal::is_debug_build && O == Debug)
-				|| (!internal::is_debug_build && O == Release))
-			{
-				for (const auto& entry: *options)
-				{
-					if constexpr(type == OutputFunction::Info) output(entry, entry.output_settings.info_color, data...);
-					if constexpr(type == OutputFunction::Warn) output(entry, entry.output_settings.warn_color, data...);
-					if constexpr(type == OutputFunction::Success)
-						output(entry,
-							entry.output_settings.success_color,
-							data...);
-					if constexpr(type == OutputFunction::Notify)
-						output(entry,
-							entry.output_settings.notify_color,
-							data...);
-					if constexpr(type == OutputFunction::Error)
-						output(entry,
-							entry.output_settings.error_color,
-							data...);
-				}
-			}
-		}
-	}
 
 	// Helpers
 
@@ -157,17 +152,61 @@ namespace logger
 		return os;
 	}
 
-	inline std::unique_ptr<Options> make_options(std::vector<OptionEntry> entries = { OptionEntry() })
+	namespace internal
 	{
-		return std::make_unique<Options>(Options(std::move(entries)));
-	}
 
+		enum OutputFunction
+		{
+			Info,
+			Warn,
+
+			Success,
+			Notify,
+			Error
+		};
+
+#ifdef DEBUG
+		const bool is_debug_build = true;
+#else
+		const bool is_debug_build = false;
+#endif
+
+		template<typename ...T>
+		LOGGER_INLINE void output(const OutputSettings& os, Color color, T... data)
+		{
+			*logger_instance << os.starting_string_color << os.starting_string << color;
+			((*logger_instance << data << " "), ...);
+			*logger_instance << os.reset_code << logger::endl;
+		}
+
+		template<OutputFunction OF>
+		inline constexpr Color get_color_from_output_function(const OutputSettings& os)
+		{
+			if constexpr(OF == Info) return os.info_color;
+			if constexpr(OF == Warn) return os.warn_color;
+
+			if constexpr(OF == Success) return os.success_color;
+			if constexpr(OF == Notify) return os.notify_color;
+			if constexpr(OF == Error) return os.error_color;
+		}
+
+		template<BuildSettings O, OutputFunction OF, typename ...T>
+		inline constexpr void output_wrapper(T... data)
+		{
+			if constexpr(O == All || (internal::is_debug_build && O == Debug)
+				|| (!internal::is_debug_build && O == Release))
+			{
+				const OutputSettings& os = logger_instance->get_output_setting();
+				output(os, get_color_from_output_function<OF>(os), data...);
+			}
+		}
+	}
 
 	// Init Functions
 
-	inline void init(std::unique_ptr<Options> opt = make_options())
+	inline void init(std::vector<OutputEntry> output_entries = { OutputEntry(std::cout, true) })
 	{
-		internal::options = std::move(opt);
+		internal::logger_instance = std::make_unique<internal::Logger>(std::move(output_entries));
 	}
 
 	// Output functions
@@ -201,6 +240,31 @@ namespace logger
 	{
 		internal::output_wrapper<O, internal::OutputFunction::Error>(data...);
 	}
+
+	// Streams
+
+	inline void add_stream(OutputEntry output_entry)
+	{
+		internal::logger_instance->add_stream(output_entry);
+	}
+
+	inline void add_stream(std::ostream& ostream, bool colored_output = true)
+	{
+		add_stream(OutputEntry(ostream, colored_output));
+	}
+
+	inline void remove_stream(OutputEntry output_entry)
+	{
+		internal::logger_instance->remove_stream(output_entry);
+	}
+
+	inline void remove_stream(std::ostream& ostream, bool colored_output = true)
+	{
+		remove_stream(OutputEntry(ostream, colored_output));
+	}
+
+
+
 
 }
 

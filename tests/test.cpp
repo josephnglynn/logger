@@ -29,11 +29,6 @@ inline void file_test()
 {
 	std::fstream file("log.txt", std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
 
-	logger::Options options = {
-
-	};
-
-	logger::init(logger::make_options({{ std::cout, logger::OutputSettings() }, { file, logger::OutputSettings() }}));
 	logger::info("OUTPUT WITH FILE OUTPUT TOO");
 	logger::warn(
 		"But be careful, as currently it also writes output_settings as well, however this should not be a problem if you intend to cat the file in your terminal");
