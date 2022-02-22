@@ -26,28 +26,31 @@ namespace logger
 		constexpr const char* green = "\u001b[32m";
 		constexpr const char* purple = "\u001b[35m";
 		constexpr const char* red = "\u001b[31m";
-		constexpr const char* starting_string = "\u001b[37m==> ";
+		constexpr const char* grey = "\u001b[37m";
+		constexpr const char* starting_string = "==> ";
 		constexpr const char* reset_code = "\u001b[0m";
 
 		constexpr const char* default_interval = "    "; // Note, kept for later
 	}
 
-	enum OutputSettings
+	enum BuildSettings
 	{
 		Debug, // DEBUG ONLY
 		Release, // RELEASE ONLY,
 		All,
 	};
 
-	struct Colors
+	struct OutputSettings
 	{
-		explicit Colors(
+		explicit OutputSettings(
 			const char* info = values::blue,
 			const char* warn = values::yellow,
 
 			const char* success = values::green,
 			const char* notify = values::purple,
 			const char* error = values::red,
+
+			const char* starting_string_color = values::grey,
 
 			const char* starting_string = values::starting_string,
 			const char* reset_code = values::reset_code
@@ -60,31 +63,34 @@ namespace logger
 		const char* notify_color;
 		const char* error_color;
 
+		const char* starting_string_color;
+
 		const char* starting_string;
 		const char* reset_code;
 	};
 
-	struct Options
+	struct OptionEntry
 	{
-		explicit Options(std::vector<std::ostream*> streams = { &std::cout }, Colors colors = Colors());
+		// Don't mark as explicit so that { std::cout, logger::OutputSettings() } still works.
+		OptionEntry(std::ostream& ostream = std::cout, OutputSettings colors = OutputSettings());
 
-		Colors colors;
-		std::vector<std::ostream*> output_streams;
+		std::ostream& ostream;
+		OutputSettings output_settings;
 	};
+
+	typedef std::vector<OptionEntry> Options;
 
 	namespace internal
 	{
 
-		struct EndLine {
-			friend std::ostream& operator << (std::ostream& os, const EndLine&);
-		};
+		enum OutputFunction
+		{
+			Info,
+			Warn,
 
-		struct Ends {
-			friend std::ostream& operator << (std::ostream& os, const Ends&);
-		};
-
-		struct Flush {
-			friend std::ostream& operator << (std::ostream& os, const Flush&);
+			Success,
+			Notify,
+			Error
 		};
 
 #ifdef DEBUG
@@ -93,74 +99,94 @@ namespace logger
 		const bool is_debug_build = false;
 #endif
 
-		std::unique_ptr<Options> options;
+		Options options;
 
 		template<typename ...T>
-		LOGGER_INLINE void output(const char* color, T... data)
+		LOGGER_INLINE void output(const OptionEntry& entry, const char* color, T... data)
 		{
-			for (const auto stream: options->output_streams)
-			{
-				*stream << options->colors.starting_string << color;
-				((*stream << data << " "), ...);
-				*stream << options->colors.reset_code << std::endl;
-			}
+			entry.ostream << entry.output_settings.starting_string_color << entry.output_settings.starting_string
+						  << color;
+			((entry.ostream << data << " "), ...);
+			entry.ostream << entry.output_settings.reset_code << std::endl;
 		}
 
-		template<OutputSettings O, typename ...T>
-		inline constexpr void output_wrapper(const char* color, T... data)
+		template<BuildSettings O, OutputFunction type, typename ...T>
+		inline constexpr void output_wrapper(T... data)
 		{
 			if constexpr(O == All || (internal::is_debug_build && O == Debug) || (!internal::is_debug_build && O == Release))
 			{
-				output(color, std::forward<T>(data)...);
+				for (const auto& entry: options)
+				{
+					if constexpr(type == OutputFunction::Info) output(entry, entry.output_settings.info_color, data...);
+					if constexpr(type == OutputFunction::Warn) output(entry, entry.output_settings.warn_color, data...);
+					if constexpr(type == OutputFunction::Success) output(entry,entry.output_settings.success_color,data...);
+					if constexpr(type == OutputFunction::Notify) output(entry,entry.output_settings.notify_color,data...);
+					if constexpr(type == OutputFunction::Error) output(entry,entry.output_settings.error_color,data...);
+				}
 			}
 		}
 	}
 
-	constexpr const internal::EndLine endl = internal::EndLine();
-	constexpr const internal::Ends ends = internal::Ends();
-	constexpr const internal::Flush flush = internal::Flush();
+	// Helpers
 
-	inline std::unique_ptr<Options> make_options(std::vector<std::ostream*> streams = { &std::cout },
-		Colors colors = Colors())
+	inline std::ostream& endl(std::ostream& os)
 	{
-		return std::make_unique<Options>(Options(std::move(streams), colors));
+		os << std::endl;
+		return os;
 	}
 
-	inline void init(std::unique_ptr<Options> opt = make_options())
+	inline std::ostream& ends(std::ostream& os)
+	{
+		os << std::ends;
+		return os;
+	}
+
+	inline std::ostream& flush(std::ostream& os)
+	{
+		os << std::flush;
+		return os;
+	}
+
+
+	// Init Functions
+
+
+
+	inline void init(Options opt = { OptionEntry() })
 	{
 		internal::options = std::move(opt);
 	}
 
+	// Output functions
 
-
-	template<OutputSettings O = Debug, typename ...T>
+	template<BuildSettings O = Debug, typename ...T>
 	inline constexpr void info(T... data)
 	{
-		internal::output_wrapper<O>(internal::options->colors.info_color, std::forward<T>(data)...);
+		internal::output_wrapper<O, internal::OutputFunction::Info>(data...);
 	}
 
-	template<OutputSettings O = Debug, typename ...T>
+	template<BuildSettings O = Debug, typename ...T>
 	inline constexpr void warn(T... data)
 	{
-		internal::output_wrapper<O>(internal::options->colors.warn_color, std::forward<T>(data)...);
+		internal::output_wrapper<O, internal::OutputFunction::Warn>(data...);
 	}
 
-	template<OutputSettings O = All, typename ...T>
+	template<BuildSettings O = All, typename ...T>
 	inline constexpr void success(T... data)
 	{
-		internal::output_wrapper<O>(internal::options->colors.success_color, std::forward<T>(data)...);
+		internal::output_wrapper<O, internal::OutputFunction::Success>(data...);
 	}
 
-	template<OutputSettings O = All, typename ...T>
+	template<BuildSettings O = All, typename ...T>
 	inline constexpr void notify(T... data)
 	{
-		internal::output_wrapper<O>(internal::options->colors.notify_color, std::forward<T>(data)...);
+		internal::output_wrapper<O, internal::OutputFunction::Notify>(data...);
 	}
 
-	template<OutputSettings O = All, typename ...T>
+	template<BuildSettings O = All, typename ...T>
 	inline constexpr void error(T... data)
 	{
-		internal::output_wrapper<O>(internal::options->colors.error_color, std::forward<T>(data)...);
+		internal::output_wrapper<O, internal::OutputFunction::Error>(data...);
 	}
 
 }

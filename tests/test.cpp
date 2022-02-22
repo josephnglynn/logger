@@ -10,7 +10,8 @@ inline void start_test(const char* test_name)
 	std::cout << std::endl << "########### Starting " << test_name << " ###########" << std::endl << std::endl;
 }
 
-inline void end_test(const char* test_name) {
+inline void end_test(const char* test_name)
+{
 	std::cout << std::endl << "########### Ending " << test_name << " ###########" << std::endl << std::endl;
 }
 
@@ -28,14 +29,20 @@ inline void file_test()
 {
 	std::fstream file("log.txt", std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
 
-	logger::init(logger::make_options({ &std::cout, &file }, logger::Colors()));
+	logger::Options options = {
+
+	};
+
+	logger::init({{ std::cout, logger::OutputSettings() }, { file, logger::OutputSettings() }});
 	logger::info("OUTPUT WITH FILE OUTPUT TOO");
 	logger::warn(
-		"But be careful, as currently it also writes colors as well, however this should not be a problem if you intend to cat the file in your terminal");
+		"But be careful, as currently it also writes output_settings as well, however this should not be a problem if you intend to cat the file in your terminal");
 
 	uint32_t data = 123456789;
 	logger::notify("Some important data: ", data);
-	logger::warn("trying 'cat log.txt' and you should see the colors work, now try editing it, you should see that its a bit messy");
+	logger::warn(
+		"trying 'cat log.txt' and you should see the output_settings work, now try editing it, you should see that its a bit messy",
+		logger::endl);
 }
 
 int main()

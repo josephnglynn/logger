@@ -6,7 +6,7 @@ This is a cpp logger for all my projects
 Before starting using any functions, call `logger::init()`, which takes an optional parameter of type `std::unique_ptr<logger::Options>`
  
 ### Note
-Although you can construct  `std::unique_ptr<logger::Options>`  with the  `std::make_unique<logger::Options>()`, it becomes a long line due to the optional call to the `logger::Options` constructor. Therefore, I recommend using the provided `logger::make_options(streams, colors)` function
+Although you can construct  `std::unique_ptr<logger::Options>`  with the  `std::make_unique<logger::Options>()`, it becomes a long line due to the optional call to the `logger::Options` constructor. Therefore, I recommend using the provided `logger::make_options(streams, output_settings)` function
 
 Now just call any of the following functions below
 
