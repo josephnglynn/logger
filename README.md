@@ -61,11 +61,9 @@ void basic_example_with_scoped_streams()
 }
 ```
 
-## Functions
+## Output Functions
 
 ```c++
-logger::init(std::unique_ptr<logger::Options> = logger::make_options()) // Init Library
-
 logger::info(Args...);  // Default Color = Blue, Default Run = Debug Only
 logger::warn(Args...);  // Default Color = Yellow, Default Run = Debug Only
 
@@ -86,8 +84,7 @@ This is a simple example, for more look at `tests/test.cpp`
 #include <logger/logger.hpp>
 
 std::ofstream my_log_file("log.txt");
-logger::init(logger::make_options({ &std::cout, &file }));
-
+logger::init({ my_log_file }); // Check this
 logger::info("This will only work in debug builds, when DEBUG macro is defined");
 logger::info<logger::Release>("This will work in only release builds");
 logger::info<logger::All>("This function will work in any build")
