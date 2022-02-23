@@ -13,9 +13,11 @@
 #include <algorithm>
 #include <functional>
 
-#define LOGGER_INLINE inline
+
 #ifdef LOGGER_DISABLE_INLINE
 #define LOGGER_INLINE
+#else
+#define LOGGER_INLINE inline
 #endif
 
 namespace logger
