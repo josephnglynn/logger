@@ -67,10 +67,16 @@ namespace logger
 
 	struct OutputEntry
 	{
-		OutputEntry(std::ostream& ostream = std::cout, bool colored_output = true);
+		OutputEntry(std::ostream* ostream = &std::cout, bool colored_output = true);
+		OutputEntry(std::ostream& ostream = std::cout, bool colored_output = true); // Kept for legacy reasons
+
+		inline friend constexpr bool operator==(const OutputEntry& oe1, const OutputEntry& oe2)
+		{
+			return (oe1.ostream == oe2.ostream); // If it is the same stream, then it shouldn't matter whether colored_output or not
+		}
 
 		bool colored_output;
-		std::ostream& ostream;
+		std::ostream* ostream;
 	};
 
 	namespace internal
@@ -106,7 +112,7 @@ namespace logger
 					{
 						if (output_entry.colored_output) continue;
 					}
-					output_entry.ostream << data << " ";
+					*output_entry.ostream << data << " ";
 				}
 				return logger;
 			}
@@ -262,7 +268,6 @@ namespace logger
 	{
 		remove_stream(OutputEntry(ostream, colored_output));
 	}
-
 
 
 

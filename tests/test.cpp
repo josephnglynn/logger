@@ -4,6 +4,7 @@
 #include <logger/logger.hpp>
 #include <fstream>
 #include <functional>
+#include <thread>
 
 inline void start_test(const char* test_name)
 {
@@ -28,6 +29,8 @@ inline void basic_color_test()
 inline void file_test()
 {
 	std::fstream file("log.txt", std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
+
+
 
 	logger::info("OUTPUT WITH FILE OUTPUT TOO");
 	logger::warn(

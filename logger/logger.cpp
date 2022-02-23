@@ -18,7 +18,8 @@ namespace logger
 	) : info_color(info), warn_color(warn), success_color(success), notify_color(notify), error_color(error),
 		starting_string_color(starting_string_color), starting_string(starting_string), reset_code(reset_code) {}
 
-	OutputEntry::OutputEntry(std::ostream& ostream, bool colored_output) : colored_output(colored_output), ostream(ostream) {}
+	OutputEntry::OutputEntry(std::ostream* ostream, bool colored_output) : colored_output(colored_output), ostream(ostream) {}
+	OutputEntry::OutputEntry(std::ostream& ostream, bool colored_output) : colored_output(colored_output), ostream(&ostream) {}
 
 	namespace internal
 	{
