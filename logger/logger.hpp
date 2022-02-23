@@ -20,59 +20,82 @@
 
 namespace logger
 {
-	typedef const char* Color;
+
+	struct TerminalCode
+	{
+		TerminalCode() = default;
+		constexpr TerminalCode(const char* color) : value(color) {}
+
+		inline friend std::ostream& operator<<(std::ostream& ostream, const TerminalCode& tc) {
+			ostream << tc.value;
+			return ostream;
+		}
+
+		const char* value;
+	};
 
 	namespace values
 	{
-		constexpr Color blue = "\u001b[34m";
-		constexpr Color yellow = "\u001b[33m";
-		constexpr Color green = "\u001b[32m";
-		constexpr Color purple = "\u001b[35m";
-		constexpr Color red = "\u001b[31m";
-		constexpr Color grey = "\u001b[37m";
-		constexpr Color starting_string = "==> ";
-		constexpr Color reset_code = "\u001b[0m";
+		constexpr TerminalCode blue = "\u001b[34m";
+		constexpr TerminalCode yellow = "\u001b[33m";
+		constexpr TerminalCode green = "\u001b[32m";
+		constexpr TerminalCode purple = "\u001b[35m";
+		constexpr TerminalCode red = "\u001b[31m";
+		constexpr TerminalCode grey = "\u001b[37m";
 
-		constexpr Color default_interval = "    "; // Note, kept for later
+		constexpr const char* starting_string = "==> ";
+		constexpr TerminalCode reset_code = "\u001b[0m";
+		constexpr const char* default_interval = "    "; // Note, kept for later
 	}
 
 	struct OutputSettings
 	{
 		OutputSettings(
-			Color info = values::blue,
-			Color warn = values::yellow,
+			TerminalCode info = values::blue,
+			TerminalCode warn = values::yellow,
 
-			Color success = values::green,
-			Color notify = values::purple,
-			Color error = values::red,
+			TerminalCode success = values::green,
+			TerminalCode notify = values::purple,
+			TerminalCode error = values::red,
 
-			Color starting_string_color = values::grey,
+			TerminalCode starting_string_color = values::grey,
 
-			Color starting_string = values::starting_string,
-			Color reset_code = values::reset_code
-		);
+			const char* starting_string = values::starting_string,
+			TerminalCode reset_code = values::reset_code
+		) : info_color(info), warn_color(warn), success_color(success), notify_color(notify), error_color(error),
+			starting_string_color(starting_string_color), starting_string(starting_string), reset_code(reset_code)
+		{
+		}
 
-		Color info_color;
-		Color warn_color;
+		TerminalCode info_color;
+		TerminalCode warn_color;
 
-		Color success_color;
-		Color notify_color;
-		Color error_color;
+		TerminalCode success_color;
+		TerminalCode notify_color;
+		TerminalCode error_color;
 
-		Color starting_string_color;
+		TerminalCode starting_string_color;
 
 		const char* starting_string;
-		const char* reset_code;
+		TerminalCode reset_code;
 	};
 
 	struct OutputEntry
 	{
-		OutputEntry(std::ostream* ostream = &std::cout, bool colored_output = true);
-		OutputEntry(std::ostream& ostream = std::cout, bool colored_output = true); // Kept for legacy reasons
+		OutputEntry(std::ostream* ostream = &std::cout, bool colored_output = true)
+			: colored_output(colored_output), ostream(ostream)
+		{
+		}
+
+		OutputEntry(std::ostream& ostream = std::cout, bool colored_output = true)
+			: colored_output(colored_output), ostream(&ostream)
+		{
+		} // Kept for legacy reasons
 
 		inline friend constexpr bool operator==(const OutputEntry& oe1, const OutputEntry& oe2)
 		{
-			return (oe1.ostream == oe2.ostream); // If it is the same stream, then it shouldn't matter whether colored_output or not
+			return (oe1.ostream
+				== oe2.ostream); // If it is the same stream, then it shouldn't matter whether colored_output or not
 		}
 
 		bool colored_output;
@@ -86,45 +109,67 @@ namespace logger
 		public:
 
 			Logger() = default;
-			Logger(std::vector<OutputEntry> output_entries);
+			Logger(std::vector<OutputEntry> output_entries) : m_output_streams(std::move(output_entries))
+			{
+			}
 
 			inline void add_stream(OutputEntry output_entry)
 			{
-				output_streams.emplace_back(output_entry);
+				m_output_streams.emplace_back(output_entry);
 			}
 
 			inline void remove_stream(OutputEntry output_entry)
 			{
-				const auto result = std::find(output_streams.begin(), output_streams.end(), output_entry);
-				if (result != std::end(output_streams))
+				const auto result = std::find(m_output_streams.begin(), m_output_streams.end(), output_entry);
+				if (result != std::end(m_output_streams))
 				{
-					output_streams.erase(result);
+					m_output_streams.erase(result);
 				}
 			}
 
 			template<typename T>
-			friend const Logger& operator<<(const Logger& logger, const T& data)
+			inline constexpr void output(const OutputEntry& oe, const T& data) const
 			{
-
-				for (const auto& output_entry: logger.output_streams)
+				if constexpr(std::is_same<T, TerminalCode>::value)
 				{
-					if constexpr(std::is_same<T, Color>::value)
-					{
-						if (output_entry.colored_output) continue;
-					}
-					*output_entry.ostream << data << " ";
+					if (!oe.colored_output) return;
+				}
+				*oe.ostream << data;
+			}
+
+			template<typename T>
+			inline friend const Logger& operator<<(const Logger& logger, const T& data)
+			{
+				for (const auto& oe: logger.m_output_streams)
+				{
+					logger.output<T>(oe, data);
 				}
 				return logger;
 			}
 
+			template<typename T>
+			inline void output_to_a_stream(const OutputEntry entry, const T& data) const
+			{
+				output<T>(entry, data);
+			}
+
+			template<typename T>
+			inline void output_to_select_streams(const std::vector<OutputEntry>& entries, const T& data) const
+			{
+				for (const auto& oe: entries)
+				{
+					output<T>(oe, data);
+				}
+			}
+
 			[[nodiscard]] inline const OutputSettings& get_output_setting() const
 			{
-				return output_settings;
+				return m_output_settings;
 			}
 
 		private:
-			OutputSettings output_settings;
-			std::vector<OutputEntry> output_streams;
+			OutputSettings m_output_settings;
+			std::vector<OutputEntry> m_output_streams;
 		};
 
 		std::unique_ptr<Logger> logger_instance;
@@ -178,7 +223,7 @@ namespace logger
 #endif
 
 		template<typename ...T>
-		LOGGER_INLINE void output(const OutputSettings& os, Color color, T... data)
+		LOGGER_INLINE void output(const OutputSettings& os, TerminalCode color, T... data)
 		{
 			*logger_instance << os.starting_string_color << os.starting_string << color;
 			((*logger_instance << data << " "), ...);
@@ -186,7 +231,7 @@ namespace logger
 		}
 
 		template<OutputFunction OF>
-		inline constexpr Color get_color_from_output_function(const OutputSettings& os)
+		inline constexpr TerminalCode get_color_from_output_function(const OutputSettings& os)
 		{
 			if constexpr(OF == Info) return os.info_color;
 			if constexpr(OF == Warn) return os.warn_color;
@@ -206,14 +251,126 @@ namespace logger
 				output(os, get_color_from_output_function<OF>(os), data...);
 			}
 		}
+
+		inline OutputEntry make_output_entry_with_cout()
+		{
+			return { std::cout, true };
+		}
 	}
+
+
+	// Streams
+
+	inline void add_stream(OutputEntry output_entry)
+	{
+		internal::logger_instance->add_stream(output_entry);
+	}
+
+	inline void add_stream(std::ostream& ostream, bool colored_output = true)
+	{
+		add_stream(OutputEntry(ostream, colored_output));
+	}
+
+	inline void remove_stream(OutputEntry output_entry)
+	{
+		internal::logger_instance->remove_stream(output_entry);
+	}
+
+	inline void remove_stream(std::ostream& ostream, bool colored_output = true)
+	{
+		remove_stream(OutputEntry(ostream, colored_output));
+	}
+
+	class scoped_stream
+	{
+
+	public:
+		explicit scoped_stream(OutputEntry oe) : m_output_entries(oe)
+		{
+		}
+
+		explicit scoped_stream(std::ostream* ostream, bool coloured_output = true) : m_output_entries({ ostream,coloured_output })
+		{
+			add_stream(m_output_entries);
+		}
+
+		explicit scoped_stream(std::ostream& ostream, bool coloured_output = true) : m_output_entries({ ostream,coloured_output })
+		{
+			add_stream(m_output_entries);
+		}
+
+		~scoped_stream()
+		{
+			remove_stream(m_output_entries);
+		}
+
+		template<typename T>
+		inline friend const scoped_stream& operator<<(const scoped_stream& temp_stream, const T& data)
+		{
+			internal::logger_instance->output_to_a_stream(temp_stream.m_output_entries, data);
+			return temp_stream;
+		}
+
+	private:
+		const OutputEntry m_output_entries;
+	};
+
+	class scoped_streams
+	{
+
+	public:
+		explicit scoped_streams(std::vector<OutputEntry> output_entries) : m_output_entries(std::move(output_entries))
+		{
+			for (const auto& oe: m_output_entries)
+			{
+				add_stream(oe);
+			}
+		}
+
+		~scoped_streams()
+		{
+			for (const auto& oe: m_output_entries)
+			{
+				remove_stream(oe);
+			}
+		}
+
+		template<typename T>
+		inline friend const scoped_streams& operator<<(const scoped_streams& temp_stream, const T& data)
+		{
+			internal::logger_instance->output_to_select_streams(temp_stream.m_output_entries, data);
+			return temp_stream;
+		}
+
+	private:
+		const std::vector<OutputEntry> m_output_entries;
+	};
+
+	typedef scoped_stream use_a_temporary_stream;
+	typedef scoped_streams use_temporary_streams;
 
 	// Init Functions
 
-	inline void init(std::vector<OutputEntry> output_entries = { OutputEntry(std::cout, true) })
+	inline void init(const bool use_std_out = true)
 	{
-		internal::logger_instance = std::make_unique<internal::Logger>(std::move(output_entries));
+		std::vector<OutputEntry> entries =
+			use_std_out ? std::vector<OutputEntry>({ internal::make_output_entry_with_cout() }) : std::vector<
+				OutputEntry>();
+		internal::logger_instance = std::make_unique<internal::Logger>(entries);
 	}
+
+	inline scoped_stream init(const OutputEntry& output_entry, const bool use_std_out)
+	{
+		init(use_std_out);
+		return scoped_stream(output_entry);
+	}
+
+	inline scoped_streams init(std::vector<OutputEntry> output_entries, const bool use_std_out)
+	{
+		init(use_std_out);
+		return scoped_streams(std::move(output_entries));
+	}
+
 
 	// Output functions
 
@@ -246,30 +403,6 @@ namespace logger
 	{
 		internal::output_wrapper<O, internal::OutputFunction::Error>(data...);
 	}
-
-	// Streams
-
-	inline void add_stream(OutputEntry output_entry)
-	{
-		internal::logger_instance->add_stream(output_entry);
-	}
-
-	inline void add_stream(std::ostream& ostream, bool colored_output = true)
-	{
-		add_stream(OutputEntry(ostream, colored_output));
-	}
-
-	inline void remove_stream(OutputEntry output_entry)
-	{
-		internal::logger_instance->remove_stream(output_entry);
-	}
-
-	inline void remove_stream(std::ostream& ostream, bool colored_output = true)
-	{
-		remove_stream(OutputEntry(ostream, colored_output));
-	}
-
-
 
 }
 
