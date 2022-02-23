@@ -31,12 +31,13 @@ struct OutputEntry
 ```c++
 void some_function()
 {
-	// Note, it is optional whether you want to construct an OutputEntry, as just passing ostream and / or the bool, will construct it for you anyway.
 	std::ofstream log("log.txt");
-	logger::scoped_stream scoped_logger (file); // When called here, the ofstream is added to the logger
+        
+        // The ofstream is added to the logger
+	logger::scoped_stream scoped_logger (file);
 	
-	// Now when we call any of the functions from logger::* which output, it will write to the file as well
-	logger::notify("Writing to log.txt now!!!");
+	// Now when we call any of the output functions from logger::*, it will write to the file as well as other streams
+	logger::notify("Writing to log.txt and other streams now!!!");
 	
 	// We can also use the scoped_logger to output
 	scoped_logger << "This will only be outputted to the log.txt file";
@@ -49,7 +50,8 @@ void basic_example_with_scoped_streams()
 		{ new std::ofstream("log_1.txt") },
 		{ new std::ofstream("log_2.txt") },
 		{ new std::ofstream("log_3.txt") }
-	}; // Note how here we must create OutputEntry objects, but the coloured output field is still optional
+	}; 
+        // Note how here we must create OutputEntry objects, as the constructor doesn't have optional params.
 	
 	logger::scoped_streams scoped_logger(files);
 	
@@ -61,11 +63,9 @@ void basic_example_with_scoped_streams()
 }
 ```
 
-## Functions
+## Output Functions
 
 ```c++
-logger::init(std::unique_ptr<logger::Options> = logger::make_options()) // Init Library
-
 logger::info(Args...);  // Default Color = Blue, Default Run = Debug Only
 logger::warn(Args...);  // Default Color = Yellow, Default Run = Debug Only
 
@@ -86,8 +86,7 @@ This is a simple example, for more look at `tests/test.cpp`
 #include <logger/logger.hpp>
 
 std::ofstream my_log_file("log.txt");
-logger::init(logger::make_options({ &std::cout, &file }));
-
+const auto log = logger::init({ my_log_file }); // Check this
 logger::info("This will only work in debug builds, when DEBUG macro is defined");
 logger::info<logger::Release>("This will work in only release builds");
 logger::info<logger::All>("This function will work in any build")
