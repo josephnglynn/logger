@@ -26,7 +26,8 @@ namespace logger
 		TerminalCode() = default;
 		constexpr TerminalCode(const char* color) : value(color) {}
 
-		inline friend std::ostream& operator<<(std::ostream& ostream, const TerminalCode& tc) {
+		inline friend std::ostream& operator<<(std::ostream& ostream, const TerminalCode& tc) 
+                {
 			ostream << tc.value;
 			return ostream;
 		}
