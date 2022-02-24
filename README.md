@@ -16,15 +16,6 @@ scoped_streams init(std::vector<OutputEntry> output_entries, const bool use_std_
 
 A `OutputEntry` with only members is an ostream with a boolean for whether color should be outputted.
 
-```c++
-struct OutputEntry
-{
-	// Constructors, Operators...
-	bool colored_output;
-	std::ostream* ostream;
-};
-```
-
 ## What is a `scoped_stream || scoped_streams`
 
 `scoped_stream` or `scoped_streams` can be used instead of needing to manually add and remove a `OutputEntry` from the
@@ -64,6 +55,62 @@ void basic_example_with_scoped_streams()
 	// And calling operator<< will only output to files
 	scoped_logger << "Whoa only the 3 logged files";
 }
+```
+
+### Definition
+
+#### scoped_stream
+```c++
+class scoped_stream
+{
+public:
+	// Adds stream to logger
+	scoped_stream(OutputEntry oe) ;
+	scoped_stream(std::ostream* ostream, bool coloured_output = true);
+	scoped_stream(std::ostream& ostream, bool coloured_output = true);
+	
+	~scoped_stream(); // Removes stream from logger
+
+	// What allows you to do << on the scoped_stream object
+	template<typename T>
+	friend const scoped_stream& operator<<(const scoped_stream& temp_stream, const T& data);
+
+	private:
+		const OutputEntry m_output_entries;
+	};
+
+```
+#### scoped_streams
+
+```c++
+
+class scoped_streams
+{
+
+public:
+    // Adds stream to logger
+    scoped_streams(std::vector<OutputEntry> output_entries);
+    
+    // Removes stream to logger
+    ~scoped_streams();
+    
+    // Adds << operator
+    template<typename T>
+    friend const scoped_streams& operator<<(const scoped_streams& temp_stream, const T& data);
+    
+private:
+    const std::vector<OutputEntry> m_output_entries;
+};
+```
+
+### Note
+
+`scoped_stream` and `scoped_streams` are also `typedef` to optional, potentially more readable types
+
+```c++
+// Optional, kept due to being named use* previously
+typedef scoped_stream use_a_temporary_stream;
+typedef scoped_streams use_temporary_streams;
 ```
 
 ## Output Functions
