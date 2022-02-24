@@ -348,9 +348,6 @@ namespace logger
 		const std::vector<OutputEntry> m_output_entries;
 	};
 
-	typedef scoped_stream use_a_temporary_stream;
-	typedef scoped_streams use_temporary_streams;
-
 	// Init Functions
 
 	inline void init(const bool use_std_out = true)

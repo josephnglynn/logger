@@ -103,15 +103,6 @@ private:
 };
 ```
 
-### Note
-
-`scoped_stream` and `scoped_streams` are also `typedef` to optional, potentially more readable types
-
-```c++
-// Optional, kept due to being named use* previously
-typedef scoped_stream use_a_temporary_stream;
-typedef scoped_streams use_temporary_streams;
-```
 
 ## Output Functions
 
