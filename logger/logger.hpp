@@ -13,7 +13,6 @@
 #include <algorithm>
 #include <functional>
 
-
 #ifdef LOGGER_DISABLE_INLINE
 #define LOGGER_INLINE
 #else
@@ -26,9 +25,11 @@ namespace logger
 	struct TerminalCode
 	{
 		TerminalCode() = default;
-		constexpr TerminalCode(const char* color) : value(color) {}
+		constexpr TerminalCode(const char* color) : value(color)
+		{
+		}
 
-		inline friend std::ostream& operator<<(std::ostream& ostream, const TerminalCode& tc) 
+		inline friend std::ostream& operator<<(std::ostream& ostream, const TerminalCode& tc)
 		{
 			ostream << tc.value;
 			return ostream;
@@ -247,7 +248,8 @@ namespace logger
 		template<BuildSettings O, OutputFunction OF, typename ...T>
 		inline constexpr void output_wrapper(T... data)
 		{
-			if constexpr(O == All || (internal::is_debug_build && O == Debug) || (!internal::is_debug_build && O == Release))
+			if constexpr(O == All || (internal::is_debug_build && O == Debug)
+				|| (!internal::is_debug_build && O == Release))
 			{
 				const OutputSettings& os = logger_instance->get_output_setting();
 				output(os, get_color_from_output_function<OF>(os), data...);
@@ -291,12 +293,14 @@ namespace logger
 		{
 		}
 
-		explicit scoped_stream(std::ostream* ostream, bool coloured_output = true) : m_output_entries({ ostream,coloured_output })
+		explicit scoped_stream(std::ostream* ostream, bool coloured_output = true) : m_output_entries({ ostream,
+																										coloured_output })
 		{
 			add_stream(m_output_entries);
 		}
 
-		explicit scoped_stream(std::ostream& ostream, bool coloured_output = true) : m_output_entries({ ostream,coloured_output })
+		explicit scoped_stream(std::ostream& ostream, bool coloured_output = true) : m_output_entries({ ostream,
+																										coloured_output })
 		{
 			add_stream(m_output_entries);
 		}
@@ -352,20 +356,25 @@ namespace logger
 
 	inline void init(const bool use_std_out = true)
 	{
-		std::vector<OutputEntry> entries = use_std_out ? std::vector<OutputEntry>({ internal::make_output_entry_with_cout() }) : std::vector<OutputEntry>();
+		std::vector<OutputEntry> entries =
+			use_std_out ? std::vector<OutputEntry>({ internal::make_output_entry_with_cout() }) : std::vector<
+				OutputEntry>();
 		internal::logger_instance = std::make_unique<internal::Logger>(entries);
 	}
 
-	inline scoped_stream init(const OutputEntry& output_entry, const bool use_std_out)
+	inline void init(const OutputEntry& output_entry, const bool use_std_out = true)
 	{
 		init(use_std_out);
-		return scoped_stream(output_entry);
+		add_stream(output_entry);
 	}
 
-	inline scoped_streams init(std::vector<OutputEntry> output_entries, const bool use_std_out)
+	inline void init(std::vector<OutputEntry> output_entries, const bool use_std_out = true)
 	{
 		init(use_std_out);
-		return scoped_streams(std::move(output_entries));
+		for (const auto& oe: output_entries)
+		{
+			add_stream(oe);
+		}
 	}
 
 

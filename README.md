@@ -8,8 +8,8 @@ Before starting using any functions, call `logger::init()` which has the followi
 
 ```c++
 void init(const bool use_std_out = true); // Where use_std_out means init logger with one ostream output of std::cout
-scoped_stream init(const OutputEntry& output_entry, const bool use_std_out) // Where use_std_out is same as before, and OutputEntry is an extra output stream to add to logger
-scoped_streams init(std::vector<OutputEntry> output_entries, const bool use_std_out) // Where use_std_out is same as before, and there is a vector of OutputEntries
+void init(const OutputEntry& output_entry, const bool use_std_out = true) // Where use_std_out is same as before, and OutputEntry is an extra output stream to add to logger
+void init(std::vector<OutputEntry> output_entries, const bool use_std_out = true) // Where use_std_out is same as before, and there is a vector of OutputEntries
 ```
 
 ### Note
@@ -138,15 +138,17 @@ This is a simple example, for more look at `tests/test.cpp`
 #include <fstream>
 #include <logger/logger.hpp>
 
-std::ofstream my_log_file("log.txt");
-const auto log = logger::init({ my_log_file }); // Check this
-logger::info("This will only work in debug builds, when DEBUG macro is defined");
-logger::info<logger::Release>("This will work in only release builds");
-logger::info<logger::All>("This function will work in any build")
-
-logger::success("This function will work in any build");
-logger::success<logger::Debug>("This function will only work in Debug");
-logger::success<logger::Release>("This function will only work in release");
+int main()
+{
+    const auto log = logger::init({ my_log_file }); // Check this
+    logger::info("This will only work in debug builds, when DEBUG macro is defined");
+    logger::info<logger::Release>("This will work in only release builds");
+    logger::info<logger::All>("This function will work in any build")
+    
+    logger::success("This function will work in any build");
+    logger::success<logger::Debug>("This function will only work in Debug");
+    logger::success<logger::Release>("This function will only work in release");	
+}
 ```
 
 ## Quirks
@@ -165,15 +167,15 @@ Note, the following types have their implementation and constexpr and inline qua
 This object specifies the color code
 
 ```c++
-	struct TerminalCode
-	{
-		TerminalCode() = default;
-		constexpr TerminalCode(const char* color) : value(color) {}
+struct TerminalCode
+{
+	TerminalCode() = default;
+	constexpr TerminalCode(const char* color) : value(color) {}
 
-		friend std::ostream& operator<<(std::ostream& ostream, const TerminalCode& tc);
+	friend std::ostream& operator<<(std::ostream& ostream, const TerminalCode& tc);
 
-		const char* value;
-	};
+	const char* value;
+};
 ```
 
 
@@ -234,12 +236,12 @@ struct OutputEntry
 Specifies when to acctually output
 
 ```c++
-	enum BuildSettings
-	{
-		Debug, // DEBUG ONLY
-		Release, // RELEASE ONLY,
-		All, // ANY BUILD
-	};
+enum BuildSettings
+{
+	Debug,   // DEBUG ONLY
+	Release, // RELEASE ONLY,
+	All,     // ANY BUILD
+};
 ```
 
 ## Values
