@@ -86,12 +86,12 @@ namespace logger
 
 	struct OutputEntry
 	{
-		OutputEntry(std::ostream* ostream = &std::cout, bool colored_output = true)
+		OutputEntry(std::ostream* ostream, bool colored_output = true)
 			: colored_output(colored_output), ostream(ostream)
 		{
 		}
 
-		OutputEntry(std::ostream& ostream = std::cout, bool colored_output = true)
+		OutputEntry(std::ostream& ostream, bool colored_output = true)
 			: colored_output(colored_output), ostream(&ostream)
 		{
 		} // Kept for legacy reasons
@@ -356,9 +356,7 @@ namespace logger
 
 	inline void init(const bool use_std_out = true)
 	{
-		std::vector<OutputEntry> entries =
-			use_std_out ? std::vector<OutputEntry>({ internal::make_output_entry_with_cout() }) : std::vector<
-				OutputEntry>();
+		std::vector<OutputEntry> entries = use_std_out ? std::vector<OutputEntry>({ internal::make_output_entry_with_cout() }) : std::vector<OutputEntry>();
 		internal::logger_instance = std::make_unique<internal::Logger>(entries);
 	}
 
