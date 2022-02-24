@@ -86,6 +86,7 @@ namespace logger
 
 	struct OutputEntry
 	{
+		OutputEntry() = default;
 		OutputEntry(std::ostream* ostream, bool colored_output = true)
 			: colored_output(colored_output), ostream(ostream)
 		{
@@ -98,8 +99,8 @@ namespace logger
 
 		inline friend constexpr bool operator==(const OutputEntry& oe1, const OutputEntry& oe2)
 		{
-			return (oe1.ostream
-				== oe2.ostream); // If it is the same stream, then it shouldn't matter whether colored_output or not
+			// If it is the same stream, then it shouldn't matter whether colored_output or not
+			return (oe1.ostream == oe2.ostream);
 		}
 
 		bool colored_output;
@@ -176,7 +177,7 @@ namespace logger
 			std::vector<OutputEntry> m_output_streams;
 		};
 
-		std::unique_ptr<Logger> logger_instance;
+		extern std::unique_ptr<Logger> logger_instance;
 	}
 
 	enum BuildSettings

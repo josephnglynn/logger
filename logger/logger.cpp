@@ -3,3 +3,8 @@
 //
 
 #include "logger.hpp"
+
+namespace logger::internal
+{
+	std::unique_ptr<Logger> logger_instance;
+}
