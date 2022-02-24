@@ -3,10 +3,3 @@
 //
 
 #include "logger.hpp"
-
-namespace logger
-{
-
-
-
-}
