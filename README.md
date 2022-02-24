@@ -7,9 +7,9 @@ This is a cpp logger for all my projects
 Before starting using any functions, call `logger::init()` which has the following signatures.
 
 ```c++
-inline void init(const bool use_std_out = true); // Where use_std_out means init logger with one ostream output of std::cout
-inline scoped_stream init(const OutputEntry& output_entry, const bool use_std_out) // Where use_std_out is same as before, and OutputEntry is an extra output stream to add to logger
-inline scoped_streams init(std::vector<OutputEntry> output_entries, const bool use_std_out) // Where use_std_out is same as before, and there is a vector of OutputEntries
+void init(const bool use_std_out = true); // Where use_std_out means init logger with one ostream output of std::cout
+scoped_stream init(const OutputEntry& output_entry, const bool use_std_out) // Where use_std_out is same as before, and OutputEntry is an extra output stream to add to logger
+scoped_streams init(std::vector<OutputEntry> output_entries, const bool use_std_out) // Where use_std_out is same as before, and there is a vector of OutputEntries
 ```
 
 ### Note
@@ -27,7 +27,10 @@ struct OutputEntry
 
 ## What is a `scoped_stream || scoped_streams`
 
-`scoped_stream` or `scoped_streams` can be used instead of needing to manually add and remove a `OutputEntry` from the logger. When the object is first constructed it adds the stream, and when destroyed, removes the stream. Take the example below.
+`scoped_stream` or `scoped_streams` can be used instead of needing to manually add and remove a `OutputEntry` from the
+logger. When the object is first constructed it adds the stream, and when destroyed, removes the stream. Take the
+example below.
+
 ```c++
 void some_function()
 {
@@ -74,6 +77,18 @@ logger::notify(Args...);  // Default Color = Purple, Default Run = Release And D
 logger::error(Args...);  // Default Color = Red, Default Run = Release And Debug ( All )
 ```
 
+## Other Functions
+
+```c++
+// Adds streams to logger
+void add_stream(OutputEntry output_entry);
+void add_stream(std::ostream& ostream, bool colored_output = true);
+
+// Remove streams from logger
+void remove_stream(OutputEntry output_entry);
+void remove_stream(std::ostream& ostream, bool colored_output = true);
+```
+
 ## Example
 
 ### Note:
@@ -101,4 +116,111 @@ logger::success<logger::Release>("This function will only work in release");
 Due to the templated nature of this library, `std::endl` and its friends `std::flush` and `std::ends`, do not want to
 work, this library provides the following, `logger::endl`, `logger::flush`, `logger::ends` as a drop in replacement,
 when using functions in this library. E.G: `logger::notify("Whoa, lets do an std::endl", std::endl)`
-becomes `logger::notify("Whoa, lets do an std::endl", logger::endl)` 
+becomes `logger::notify("Whoa, lets do an std::endl", logger::endl)`
+
+## Types
+
+Note, the following types have their implementation and constexpr and inline qualifiers removed
+
+### Terminal Code
+
+This object specifies the color code
+
+```c++
+	struct TerminalCode
+	{
+		TerminalCode() = default;
+		constexpr TerminalCode(const char* color) : value(color) {}
+
+		friend std::ostream& operator<<(std::ostream& ostream, const TerminalCode& tc);
+
+		const char* value;
+	};
+```
+
+
+### Output Settings
+
+This object specifies the colours to use with the logger
+```c++
+struct OutputSettings
+{
+    OutputSettings(
+        TerminalCode info = values::blue,
+        TerminalCode warn = values::yellow,
+        
+        TerminalCode success = values::green,
+        TerminalCode notify = values::purple,
+        TerminalCode error = values::red,
+        
+        TerminalCode starting_string_color = values::grey,
+        
+        const char* starting_string = values::starting_string,
+        TerminalCode reset_code = values::reset_code
+    );
+    
+    TerminalCode info_color;
+    TerminalCode warn_color;
+    
+    TerminalCode success_color;
+    TerminalCode notify_color;
+    TerminalCode error_color;
+    
+    TerminalCode starting_string_color;
+    
+    const char* starting_string;
+    TerminalCode reset_code;
+};
+
+```
+
+### Output Entry
+
+This object describes which ostream to add to the logger and whether colors should be outputted.
+
+```c++
+struct OutputEntry
+{
+    OutputEntry(std::ostream* ostream = &std::cout, bool colored_output = true);
+    OutputEntry(std::ostream& ostream = std::cout, bool colored_output = true);
+    
+    friend bool operator==(const OutputEntry& oe1, const OutputEntry& oe2);
+    
+    bool colored_output;
+    std::ostream* ostream;
+};
+```
+
+### BuildSettings 
+
+Specifies when to acctually output
+
+```c++
+	enum BuildSettings
+	{
+		Debug, // DEBUG ONLY
+		Release, // RELEASE ONLY,
+		All, // ANY BUILD
+	};
+```
+
+## Values
+
+The `values` namespace in `logger`, contains the default colors for ansi terminals.
+```c++
+
+namespace values
+{
+    constexpr TerminalCode blue = "\u001b[34m";
+    constexpr TerminalCode yellow = "\u001b[33m";
+    constexpr TerminalCode green = "\u001b[32m";
+    constexpr TerminalCode purple = "\u001b[35m";
+    constexpr TerminalCode red = "\u001b[31m";
+    constexpr TerminalCode grey = "\u001b[37m";
+    
+    constexpr const char* starting_string = "==> ";
+    constexpr TerminalCode reset_code = "\u001b[0m";
+    constexpr const char* default_interval = "    "; 
+}
+
+```

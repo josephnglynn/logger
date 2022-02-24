@@ -28,7 +28,7 @@ inline void basic_color_test()
 
 inline void file_test()
 {
-	std::ofstream file("log.txt", std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
+	std::ofstream file("log.txt");
 	logger::scoped_stream temp_logger(file);
 
 	logger::info("OUTPUT WITH FILE OUTPUT TOO");
@@ -59,7 +59,8 @@ inline void multiple_streams()
 		std::ofstream non_temp("non_temp.txt");
 		logger::add_stream(non_temp);
 
-		logger::notify("You should see this output in the files, ms1.txt, ms2.txt, ms3.txt, non_temp.txt and standard output, as we are calling a function");
+		logger::notify(
+			"You should see this output in the files, ms1.txt, ms2.txt, ms3.txt, non_temp.txt and standard output, as we are calling a function");
 		logger::warn("You should only see the next output in ms1.txt, ms2.txt and ms3.txt");
 		temp_logger << "You should see this output only in the ms*.txt files";
 
