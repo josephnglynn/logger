@@ -134,13 +134,14 @@ void remove_stream(std::ostream& ostream, bool colored_output = true);
 This is a simple example, for more look at `tests/test.cpp`
 
 ```c++
-#include <iostream> // Note logger.hpp does include <iostream>
 #include <fstream>
 #include <logger/logger.hpp>
 
 int main()
 {
-    const auto log = logger::init({ my_log_file }); // Check this
+    std::ofstream my_log_file("log.txt")
+    const auto log = logger::init( my_log_file );
+	
     logger::info("This will only work in debug builds, when DEBUG macro is defined");
     logger::info<logger::Release>("This will work in only release builds");
     logger::info<logger::All>("This function will work in any build")
@@ -148,6 +149,8 @@ int main()
     logger::success("This function will work in any build");
     logger::success<logger::Debug>("This function will only work in Debug");
     logger::success<logger::Release>("This function will only work in release");	
+	
+    logger::notify("Exiting now..."); // Called in any build
 }
 ```
 
