@@ -29,7 +29,7 @@ namespace logger
 		constexpr TerminalCode(const char* color) : value(color) {}
 
 		inline friend std::ostream& operator<<(std::ostream& ostream, const TerminalCode& tc) 
-                {
+		{
 			ostream << tc.value;
 			return ostream;
 		}
@@ -247,8 +247,7 @@ namespace logger
 		template<BuildSettings O, OutputFunction OF, typename ...T>
 		inline constexpr void output_wrapper(T... data)
 		{
-			if constexpr(O == All || (internal::is_debug_build && O == Debug)
-				|| (!internal::is_debug_build && O == Release))
+			if constexpr(O == All || (internal::is_debug_build && O == Debug) || (!internal::is_debug_build && O == Release))
 			{
 				const OutputSettings& os = logger_instance->get_output_setting();
 				output(os, get_color_from_output_function<OF>(os), data...);
