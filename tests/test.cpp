@@ -74,7 +74,8 @@ inline void multiple_streams()
 int main()
 {
 	// Init
-	logger::init();
+	std::ofstream my_log_file("log.txt");
+	logger::init(my_log_file);
 
 	std::tuple<std::function<void()>, const char*> tests[] = {
 		{ basic_color_test, "Basic color test" },

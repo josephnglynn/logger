@@ -4,9 +4,7 @@
 
 #include "logger.hpp"
 
-namespace logger
+namespace logger::internal
 {
-
-
-
+	std::unique_ptr<Logger> logger_instance;
 }
