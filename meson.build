@@ -12,9 +12,8 @@ logger_includes = include_directories('.')
 logger_sources = ['logger/logger.cpp']
 logger_deps = []
    
-arg = ''
 if get_option('buildtype').startswith('debug')
-   arg = '-DDEBUG'
+   add_project_arguments('-DDEBUG', language: 'cpp')
 endif
 
 
