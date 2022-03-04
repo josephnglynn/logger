@@ -213,12 +213,12 @@ namespace logger
 
 		enum OutputFunction
 		{
-			Info,
-			Warn,
+			LOGGER_INFO_FUNC,
+			LOGGER_WARN_FUNC,
 
-			Success,
-			Notify,
-			Error
+			LOGGER_SUCCESS_FUNC,
+			LOGGER_NOTIFY_FUNC,
+			LOGGER_ERROR_FUNC
 		};
 
 #ifdef DEBUG
@@ -238,12 +238,12 @@ namespace logger
 		template<OutputFunction OF>
 		inline constexpr TerminalCode get_color_from_output_function(const OutputSettings& os)
 		{
-			if constexpr(OF == Info) return os.info_color;
-			if constexpr(OF == Warn) return os.warn_color;
+			if constexpr(OF == LOGGER_INFO_FUNC) return os.info_color;
+			if constexpr(OF == LOGGER_WARN_FUNC) return os.warn_color;
 
-			if constexpr(OF == Success) return os.success_color;
-			if constexpr(OF == Notify) return os.notify_color;
-			if constexpr(OF == Error) return os.error_color;
+			if constexpr(OF == LOGGER_SUCCESS_FUNC) return os.success_color;
+			if constexpr(OF == LOGGER_NOTIFY_FUNC) return os.notify_color;
+			if constexpr(OF == LOGGER_ERROR_FUNC) return os.error_color;
 		}
 
 		template<BuildSettings O, OutputFunction OF, typename ...T>
@@ -367,7 +367,7 @@ namespace logger
 		add_stream(output_entry);
 	}
 
-	inline void init(std::vector<OutputEntry> output_entries, const bool use_std_out = true)
+	inline void init(const std::vector<OutputEntry>& output_entries, const bool use_std_out = true)
 	{
 		init(use_std_out);
 		for (const auto& oe: output_entries)
@@ -382,31 +382,31 @@ namespace logger
 	template<BuildSettings O = Debug, typename ...T>
 	inline constexpr void info(T... data)
 	{
-		internal::output_wrapper<O, internal::OutputFunction::Info>(data...);
+		internal::output_wrapper<O, internal::OutputFunction::LOGGER_INFO_FUNC>(data...);
 	}
 
 	template<BuildSettings O = Debug, typename ...T>
 	inline constexpr void warn(T... data)
 	{
-		internal::output_wrapper<O, internal::OutputFunction::Warn>(data...);
+		internal::output_wrapper<O, internal::OutputFunction::LOGGER_WARN_FUNC>(data...);
 	}
 
 	template<BuildSettings O = All, typename ...T>
 	inline constexpr void success(T... data)
 	{
-		internal::output_wrapper<O, internal::OutputFunction::Success>(data...);
+		internal::output_wrapper<O, internal::OutputFunction::LOGGER_SUCCESS_FUNC>(data...);
 	}
 
 	template<BuildSettings O = All, typename ...T>
 	inline constexpr void notify(T... data)
 	{
-		internal::output_wrapper<O, internal::OutputFunction::Notify>(data...);
+		internal::output_wrapper<O, internal::OutputFunction::LOGGER_NOTIFY_FUNC>(data...);
 	}
 
 	template<BuildSettings O = All, typename ...T>
 	inline constexpr void error(T... data)
 	{
-		internal::output_wrapper<O, internal::OutputFunction::Error>(data...);
+		internal::output_wrapper<O, internal::OutputFunction::LOGGER_ERROR_FUNC>(data...);
 	}
 
 }
