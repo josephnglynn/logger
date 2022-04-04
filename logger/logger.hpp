@@ -355,15 +355,37 @@ namespace logger
 
 	// Init Functions
 
-	inline void init(const bool use_std_out = true)
+	namespace internal
 	{
-		std::vector<OutputEntry> entries = use_std_out ? std::vector<OutputEntry>({ internal::make_output_entry_with_cout() }) : std::vector<OutputEntry>();
-		internal::logger_instance = std::make_unique<internal::Logger>(entries);
+
+		void init_internal_force(const bool use_std_out = true)
+		{
+			std::vector<OutputEntry> entries = use_std_out ? std::vector<OutputEntry>({ internal::make_output_entry_with_cout() }) : std::vector<OutputEntry>();
+			internal::logger_instance = std::make_unique<internal::Logger>(entries);
+		}
 	}
 
-	inline void init(const OutputEntry& output_entry, const bool use_std_out = true)
+	template<bool force_reinit = false>
+	inline constexpr void init(const bool use_std_out = true)
 	{
-		init(use_std_out);
+		if constexpr(!force_reinit)
+		{
+			if (!internal::logger_instance.operator->())
+			{
+				internal::init_internal_force(use_std_out);
+			}
+		}
+		else
+		{
+			internal::init_internal_force(use_std_out);
+		}
+
+	}
+
+	template<bool force_reinit = false>
+	inline constexpr void init(const OutputEntry& output_entry, const bool use_std_out = true)
+	{
+		init<force_reinit>(use_std_out);
 		add_stream(output_entry);
 	}
 
