@@ -358,7 +358,7 @@ namespace logger
 	namespace internal
 	{
 
-		void init_internal_force(const bool use_std_out = true)
+		inline void init_internal_force(const bool use_std_out = true)
 		{
 			std::vector<OutputEntry> entries = use_std_out ? std::vector<OutputEntry>({ internal::make_output_entry_with_cout() }) : std::vector<OutputEntry>();
 			internal::logger_instance = std::make_unique<internal::Logger>(entries);
