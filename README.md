@@ -8,8 +8,8 @@ Before starting using any functions, call `logger::init()` which has the followi
 
 ```c++
 void init(const bool use_std_out = true); // Where use_std_out means init logger with one ostream output of std::cout
-void init(const OutputEntry& output_entry, const bool use_std_out = true) // Where use_std_out is same as before, and OutputEntry is an extra output stream to add to logger
-void init(std::vector<OutputEntry> output_entries, const bool use_std_out = true) // Where use_std_out is same as before, and there is a vector of OutputEntries
+void init(const OutputEntry& output_entry, const bool use_std_out = true); // Where use_std_out is same as before, and OutputEntry is an extra output stream to add to logger
+void init(std::vector<OutputEntry> output_entries, const bool use_std_out = true); // Where use_std_out is same as before, and there is a vector of OutputEntries
 ```
 
 ### Note
