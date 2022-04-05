@@ -85,6 +85,8 @@ int main()
 		{ multiple_streams, "Multiple streams test" },
 	};
 
+	logger::new_line();
+
 	for (const auto& test: tests)
 	{
 		start_test(std::get<1>(test));
