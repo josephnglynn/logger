@@ -49,8 +49,7 @@ namespace logger
 		constexpr TerminalCode grey = "\u001b[37m";
 
 		constexpr const char* starting_string = "==> ";
-		constexpr TerminalCode
-			reset_code = "\u001b[0m";
+		constexpr TerminalCode reset_code = "\u001b[0m";
 		constexpr const char* default_interval = "    "; // Note, kept for later
 	}                                                    // namespace values
 
@@ -242,17 +241,12 @@ namespace logger
 		template <OutputFunction OF>
 		inline constexpr TerminalCode get_color_from_output_function(const OutputSettings& os)
 		{
-			if constexpr (OF == LOGGER_INFO_FUNC)
-				return os.info_color;
-			if constexpr (OF == LOGGER_WARN_FUNC)
-				return os.warn_color;
+			if constexpr (OF == LOGGER_INFO_FUNC) return os.info_color;
+			if constexpr (OF == LOGGER_WARN_FUNC) return os.warn_color;
 
-			if constexpr (OF == LOGGER_SUCCESS_FUNC)
-				return os.success_color;
-			if constexpr (OF == LOGGER_NOTIFY_FUNC)
-				return os.notify_color;
-			if constexpr (OF == LOGGER_ERROR_FUNC)
-				return os.error_color;
+			if constexpr (OF == LOGGER_SUCCESS_FUNC) return os.success_color;
+			if constexpr (OF == LOGGER_NOTIFY_FUNC) return os.notify_color;
+			if constexpr (OF == LOGGER_ERROR_FUNC) return os.error_color;
 
 			if constexpr (OF == LOGGER_NEW_LINE_FUNC) return "";
 		}
@@ -260,8 +254,7 @@ namespace logger
 		template <BuildSettings O, OutputFunction OF, bool add_arrow = true, typename... T>
 		inline constexpr void output_wrapper(T... data)
 		{
-			if constexpr (O == All || (internal::is_debug_build && O == Debug)
-						  || (!internal::is_debug_build && O == Release))
+			if constexpr (O == All || (internal::is_debug_build && O == Debug) || (!internal::is_debug_build && O == Release))
 			{
 				if constexpr (!add_arrow)
 				{
@@ -311,15 +304,13 @@ namespace logger
 		}
 
 		explicit scoped_stream(std::ostream* ostream, bool coloured_output = true)
-			: m_output_entries({ostream,
-								coloured_output})
+			: m_output_entries({ostream, coloured_output})
 		{
 			add_stream(m_output_entries);
 		}
 
 		explicit scoped_stream(std::ostream& ostream, bool coloured_output = true)
-			: m_output_entries({ostream,
-								coloured_output})
+			: m_output_entries({ostream, coloured_output})
 		{
 			add_stream(m_output_entries);
 		}
@@ -379,8 +370,7 @@ namespace logger
 
 		inline void init_internal_force(const bool use_std_out = true)
 		{
-			std::vector<OutputEntry> entries =
-				use_std_out ? std::vector<OutputEntry>({internal::make_output_entry_with_cout()}) : std::vector<OutputEntry>();
+			std::vector<OutputEntry> entries = use_std_out ? std::vector<OutputEntry>({internal::make_output_entry_with_cout()}) : std::vector<OutputEntry>();
 			internal::logger_instance = std::make_unique<internal::Logger>(entries);
 		}
 	} // namespace internal
