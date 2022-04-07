@@ -455,6 +455,15 @@ namespace logger
 		internal::output_wrapper<O, internal::OutputFunction::LOGGER_NEW_LINE_FUNC, false>("\n");
 	}
 
+	template <BuildSettings O = All, typename T = int>
+	inline constexpr void new_line(const T line_count)
+	{
+		for (T i = 0; i < line_count; ++i)
+		{
+			internal::output_wrapper<O, internal::OutputFunction::LOGGER_NEW_LINE_FUNC, false>("\n");
+		}
+	}
+
 } // namespace logger
 
 #endif //LOGGER_HPP
