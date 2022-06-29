@@ -25,7 +25,7 @@ example below.
 ```c++
 void some_function()
 {
-	std::ofstream log("log.txt");
+	std::ofstream file("log.txt");
         
         // The ofstream is added to the logger
 	logger::scoped_stream scoped_logger (file);
