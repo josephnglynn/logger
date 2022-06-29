@@ -258,7 +258,9 @@ namespace logger
 			{
 				if constexpr (!add_arrow)
 				{
+					*logger_instance << color;
 					((*logger_instance << data), ...);
+					*logger_instance << os.reset_code << logger::endl;
 					return;
 				}
 				const OutputSettings& os = logger_instance->get_output_setting();
